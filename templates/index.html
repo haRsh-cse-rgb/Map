@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DRI Plants in India</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <script src="https://code.highcharts.com/maps/highmaps.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h3>DRI Plants Map</h3>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="material-icons">menu</i>
+            </button>
+        </div>
+
+        <div class="sidebar-content">
+            <div class="sidebar-section">
+                <button id="tutorial-btn" class="sidebar-button help">
+                    <i class="material-icons">help_outline</i> 
+                    <span>How to Use</span>
+                </button>
+            </div>
+
+            <div id="distance-calculator" class="sidebar-section">
+                <h4><i class="material-icons">directions</i> Distance Calculator</h4>
+                <button id="distance-btn" class="sidebar-button">
+                    <i class="material-icons">calculate</i> 
+                    <span>Find Distance Between Plants</span>
+                </button>
+                <div id="distance-inputs" style="display: none;">
+                    <div class="distance-form">
+                      <div class="autocomplete">
+                        <i class="fa fa-circle-o"></i>
+                        <input type="text" id="start-input" placeholder="Choose starting point..." />
+                        <ul id="plant1-options" class="autocomplete-options"></ul>
+                      </div>
+                      <div class="autocomplete">
+                        <i class="fa fa-map-marker"></i>
+                        <input type="text" id="end-input" placeholder="Choose destination..." />
+                        <ul id="plant2-options" class="autocomplete-options"></ul>
+                      </div>
+                    </div>
+                    <button id="calculate-distance-btn" class="sidebar-button primary">
+                        <i class="material-icons">calculate</i> 
+                        <span>Calculate Distance</span>
+                    </button>
+                    <div id="distance-result" class="distance-result"></div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h4><i class="material-icons">layers</i> Map Layers</h4>
+                <div class="toggle-controls">
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="plants-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">
+                            <span class="legend-color red"></span>
+                            Sponge Iron Plants
+                        </span>
+                    </div>
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="biomass-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">
+                            <span class="legend-color green"></span>
+                            Biomass Availability
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <button id="biomass-details-btn" class="sidebar-button">
+                    <i class="material-icons">grass</i> 
+                    <span>Biomass Details of State</span>
+                </button>
+                 <button id="district-biomass-btn" class="sidebar-button" disabled>
+                    <i class="material-icons">location_on</i> 
+                    <span>Biomass Details of District</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-content" class="main-content">
+        <button id="show-sidebar-btn" class="show-sidebar-btn" style="display: none;">
+            <i class="material-icons">menu_open</i>
+            <span>Options</span>
+        </button>
+
+        <div id="map-container"></div>
+
+        <div id="bottom-right-overlays">
+            <div id="data-glance-overlay" class="map-overlay-box">
+                </div>
+        </div>
+
+        <div class="mobile-controls">
+            <button id="mobile-menu-toggle" class="mobile-button">
+                <i class="material-icons">menu</i>
+            </button>
+        </div>
+    </div>
+
+    <div id="state-list-container" class="state-list-container"></div>
+
+    <div id="biomass-details-container" role="region" aria-label="Biomass Details"></div>
+
+    <div id="tutorial-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-tutorial">&times;</span>
+            <h2>How to Use This Web Application</h2>
+            
+            <div style="margin-bottom: 20px;">
+                <h3>🗺️ Exploring the Map</h3>
+                <ul>
+                    <li><strong>Click on a state</strong> to zoom in and see its districts with detailed plant locations</li>
+                    <li><strong>Click on a district</strong> when viewing a state to see specific plants and biomass data</li>
+                    <li><strong>Hover over states/districts</strong> to highlight them and see basic information</li>
+                    <li><strong>Use map navigation</strong> to zoom and pan around the map</li>
+                </ul>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h3>📏 Finding Distance Between Plants</h3>
+                <ol>
+                    <li>Click the <strong>"Find Distance Between Plants"</strong> button in the sidebar</li>
+                    <li>Start typing the name of the first plant - a dropdown will appear with matching options</li>
+                    <li>Select your desired plant from the dropdown list</li>
+                    <li>Repeat the process for the second plant in the bottom input field</li>
+                    <li>Click <strong>"Calculate Distance"</strong> to see the distance between the two locations</li>
+                </ol>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h3>🎛️ Using Map Controls</h3>
+                <ul>
+                    <li>Use the <strong>toggle switches</strong> in the sidebar to show/hide plant or biomass layers</li>
+                    <li>The sidebar can be <strong>collapsed</strong> using the menu button for a full map view</li>
+                    <li>On mobile devices, tap the menu button to access all controls</li>
+                </ul>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h3>🔍 Understanding the Legend</h3>
+                <ul>
+                    <li><strong>Red dots (●)</strong> represent Sponge Iron Plant locations</li>
+                    <li><strong>Green dots (●)</strong> represent areas with Biomass data availability</li>
+                    <li>Click on any dot to get detailed information about that location</li>
+                </ul>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h3>📊 Accessing Biomass Data</h3>
+                <ul>
+                    <li>Click the <strong>"Biomass Details of State"</strong> button in the sidebar to see a list of all states.</li>
+                    <li>When viewing a state map, click the <strong>"Biomass Details of District"</strong> button to see a list of districts.</li>
+                    <li>You can also click directly on green dots or districts to see local biomass information</li>
+                </ul>
+            </div>
+
+            <div style="background-color: #f0f8ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <strong>💡 Pro Tip:</strong> For the best experience, start by exploring the India map, then click on states of interest to see detailed district-level information.
+            </div>
+        </div>
+    </div>
+    
+    <div id="details-modal-container" class="details-modal-container">
+        <div id="plant-details-modal" class="side-modal"></div>
+        <div id="biomass-details-modal" class="side-modal"></div>
+        <button id="close-details-modals" class="close-details-btn">&times;</button>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

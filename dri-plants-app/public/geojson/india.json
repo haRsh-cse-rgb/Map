@@ -1,0 +1,35 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "st_nm": "Odisha"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.0, 20.0], [87.0, 20.0], [87.0, 22.0], [85.0, 22.0], [85.0, 20.0]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "st_nm": "Maharashtra"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[72.0, 16.0], [80.0, 16.0], [80.0, 22.0], [72.0, 22.0], [72.0, 16.0]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "st_nm": "Jharkhand"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[83.0, 22.0], [88.0, 22.0], [88.0, 25.0], [83.0, 25.0], [83.0, 22.0]]]
+      }
+    }
+  ]
+}

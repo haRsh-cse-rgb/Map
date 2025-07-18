@@ -1,0 +1,1147 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+
+/* =================================================================== */
+/* 1. GLOBAL STYLES
+/* =================================================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+:root {
+    /* Modern Color Palette - LIGHT THEME */
+    --primary-gradient: linear-gradient(135deg, #F8F9FA 0%, #DEE2E6 100%);
+    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --warning-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    
+    /* Neutral Colors */
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    
+    /* Accent Colors */
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-red: #ef4444;
+    --accent-purple: #8b5cf6;
+    
+    /* Glass Morphism for Light BG */
+    --glass-bg: rgba(255, 255, 255, 0.5);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Border Radius */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    
+    /* Transitions */
+    --transition-fast: 150ms ease-out;
+    --transition-normal: 250ms ease-out;
+    --transition-slow: 350ms ease-out;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar for Webkit Browsers */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.8);
+    border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #aab2bd;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-normal);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #868e96;
+}
+
+/* Enhanced Focus states for better accessibility */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    transition: all var(--transition-fast);
+}
+
+/* =================================================================== */
+/* 2. SIDEBAR STYLES
+/* =================================================================== */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 360px;
+    height: 100vh;
+    background: var(--primary-gradient);
+    box-shadow: var(--shadow-xl);
+    z-index: 1000;
+    transform: translateX(0);
+    transition: transform var(--transition-slow);
+    overflow-y: auto;
+    border-right: 1px solid #ced4da;
+    scrollbar-width: thin;
+    scrollbar-color: #adb5bd transparent;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-normal);
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.sidebar.collapsed {
+    transform: translateX(-360px);
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-lg);
+    background: rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.sidebar-header h3 {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.sidebar-toggle {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-primary);
+    padding: var(--space-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.05);
+    box-shadow: var(--shadow-sm);
+}
+
+.sidebar-toggle i {
+    font-size: 20px;
+    z-index: 1;
+}
+
+.sidebar-content {
+    padding: var(--space-lg);
+}
+
+.sidebar-section {
+    margin-bottom: var(--space-md);
+    background: var(--glass-bg);
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--glass-border);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-normal);
+}
+
+.sidebar-section:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.sidebar-section h4 {
+    color: var(--text-primary);
+    margin: 0 0 var(--space-md) 0;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    letter-spacing: -0.01em;
+}
+
+.sidebar-section h4 i {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+/* =================================================================== */
+/* 3. ENHANCED BUTTONS
+/* =================================================================== */
+
+.sidebar-button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: 14px 18px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    width: 100%;
+    text-align: left;
+    margin-bottom: var(--space-sm);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    font-family: inherit;
+}
+
+.sidebar-button:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-primary);
+}
+
+.sidebar-button:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-md);
+}
+
+.sidebar-button:disabled,
+.sidebar-button:disabled:hover {
+    background: rgba(222, 226, 230, 0.5);
+    color: #adb5bd;
+    cursor: not-allowed;
+    border-color: #dee2e6;
+    transform: none;
+    box-shadow: none;
+}
+
+.sidebar-button.primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: transparent;
+    color: white;
+    font-weight: 600;
+}
+
+.sidebar-button.primary:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+    color: white;
+}
+
+.sidebar-button.help {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-color: transparent;
+    color: white;
+    font-weight: 600;
+}
+
+.sidebar-button.help:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+    color: white;
+}
+
+.sidebar-button i {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+.show-sidebar-btn {
+    position: fixed;
+    top: var(--space-lg);
+    left: var(--space-lg);
+    z-index: 999;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 12px 18px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    transition: all var(--transition-normal);
+    font-family: inherit;
+}
+
+.show-sidebar-btn:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-xl);
+}
+
+.show-sidebar-btn i {
+    font-size: 20px;
+}
+
+.back-button {
+    position: absolute;
+    top: var(--space-lg);
+    right: var(--space-lg);
+    z-index: 998;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: var(--radius-md);
+    padding: 12px 18px;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: all var(--transition-normal);
+    backdrop-filter: blur(10px);
+    font-family: inherit;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
+}
+
+/* =================================================================== */
+/* 4. ENHANCED FORM ELEMENTS & CONTROLS
+/* =================================================================== */
+
+.toggle-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.toggle-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+}
+
+.toggle-item:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    flex: 1;
+}
+
+/* Enhanced Toggle Switch */
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+}
+
+.toggle-switch .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    transition: all var(--transition-normal);
+    border-radius: 28px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.toggle-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    transition: all var(--transition-normal);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.toggle-switch input:checked + .slider {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-color: transparent;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.toggle-switch input:checked + .slider:before {
+    transform: translateX(24px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Enhanced Distance Calculator */
+.distance-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.autocomplete {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.autocomplete i {
+    color: var(--text-secondary);
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.autocomplete input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #dee2e6;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    background: #ffffff;
+    color: var(--text-primary);
+    transition: all var(--transition-normal);
+    font-family: inherit;
+    font-weight: 400;
+}
+
+.autocomplete input::placeholder {
+    color: var(--text-muted);
+}
+
+.autocomplete input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+
+.autocomplete-options {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 32px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: var(--radius-md);
+    list-style: none;
+    padding: var(--space-sm);
+    margin: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1001;
+    box-shadow: var(--shadow-xl);
+    backdrop-filter: blur(20px);
+}
+
+.autocomplete-options li {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+    font-weight: 500;
+}
+
+.autocomplete-options li:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.1) 100%);
+    transform: translateX(4px);
+}
+
+.distance-result {
+    margin-top: var(--space-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: var(--space-md);
+    background: #e9ecef;
+    border: 2px solid #dee2e6;
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-size: 14px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* =================================================================== */
+/* 5. MAIN CONTENT & MAP
+/* =================================================================== */
+
+.main-content {
+    margin-left: 360px;
+    height: 100vh;
+    position: relative;
+    transition: margin-left var(--transition-slow);
+}
+
+.main-content.full-width {
+    margin-left: 0;
+}
+
+#map-container {
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    position: relative;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 0;
+}
+
+/* =================================================================== */
+/* 6. ENHANCED MODAL
+/* =================================================================== */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    padding: var(--space-lg);
+    backdrop-filter: blur(8px);
+    animation: fadeIn var(--transition-normal) ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    margin: 5vh auto;
+    padding: var(--space-xl);
+    border-radius: var(--radius-xl);
+    width: 90%;
+    max-width: 920px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideInUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    position: relative;
+}
+
+@keyframes slideInUp {
+    from { 
+        transform: translateY(60px) scale(0.9); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateY(0) scale(1); 
+        opacity: 1; 
+    }
+}
+
+.modal-content .close-modal,
+.close-tutorial {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 32px;
+    font-weight: bold;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+    transition: all var(--transition-normal);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(248, 250, 252, 0.8);
+}
+
+.modal-content .close-modal:hover,
+.close-tutorial:hover {
+    color: var(--accent-red);
+    background: rgba(239, 68, 68, 0.1);
+    transform: rotate(90deg) scale(1.1);
+}
+
+/* Enhanced Modal Content Styling */
+.modal-content h2 {
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xl) 0;
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.modal-content h3 {
+    color: var(--text-primary);
+    margin: var(--space-lg) 0 var(--space-md) 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.modal-content ul, .modal-content ol {
+    margin: var(--space-md) 0;
+    padding-left: var(--space-lg);
+}
+
+.modal-content li {
+    margin-bottom: var(--space-sm);
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.modal-content strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* =================================================================== */
+/* 7. ENHANCED TABLES & LISTS
+/* =================================================================== */
+
+.state-biomass-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.state-biomass-button .view-details-btn {
+    padding: 5px 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+    margin: 0;
+}
+
+.plant-details-table, .biomass-table {
+    margin-bottom: var(--space-lg);
+}
+
+th, td {
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+    transition: background-color var(--transition-normal);
+}
+
+th {
+    background: #f1f5f9;
+    color: var(--text-primary);
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+}
+
+td:first-child, th:first-child {
+    text-align: left;
+    font-weight: 600;
+}
+
+tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+tr:hover {
+    background: #f1f5f9;
+}
+
+/* =================================================================== */
+/* 8. ENHANCED OVERLAYS & LEGENDS
+/* =================================================================== */
+
+.map-overlay-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    transition: all var(--transition-normal);
+}
+
+.map-overlay-box:hover {
+    background: rgba(255, 255, 255, 0.98);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.map-overlay-box h4 {
+    color: var(--text-primary);
+    margin: 0 0 var(--space-md) 0;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    letter-spacing: -0.01em;
+}
+
+.map-overlay-box h4 i {
+    font-size: 18px;
+    color: var(--accent-blue);
+}
+
+#bottom-right-overlays {
+    position: absolute;
+    bottom: 80px;
+    right: var(--space-lg);
+    z-index: 998;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    max-width: 280px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-sm);
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 500;
+    transition: all var(--transition-normal);
+    padding: var(--space-xs);
+    border-radius: var(--radius-sm);
+}
+
+.legend-item:hover {
+    background: rgba(59, 130, 246, 0.05);
+    transform: translateX(4px);
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    transition: all var(--transition-normal);
+}
+
+.legend-color.red {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}
+
+.legend-color.green {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.legend-color:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.legend-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+/* Data at a Glance Overlay */
+#data-glance-overlay {
+    min-width: 200px;
+}
+
+#data-glance-overlay .stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-sm) 0;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.3);
+    transition: all var(--transition-normal);
+}
+
+#data-glance-overlay .stat-item:hover {
+    background: rgba(59, 130, 246, 0.05);
+    padding-left: var(--space-sm);
+    border-radius: var(--radius-sm);
+}
+
+#data-glance-overlay .stat-item:last-child {
+    border-bottom: none;
+}
+
+#data-glance-overlay .stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+#data-glance-overlay .stat-value {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* =================================================================== */
+/* 9. MOBILE CONTROLS & RESPONSIVE DESIGN
+/* =================================================================== */
+
+.mobile-controls {
+    display: none;
+    position: fixed;
+    bottom: var(--space-lg);
+    left: var(--space-lg);
+    z-index: 999;
+}
+
+.mobile-button {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid #dee2e6;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: var(--shadow-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.mobile-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-button:active {
+    transform: scale(0.95);
+}
+
+/* =================================================================== */
+/* 10. SIDE-BY-SIDE & DISTRICT MODAL STYLES
+/* =================================================================== */
+
+.details-modal-container {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    padding: var(--space-lg);
+    backdrop-filter: blur(8px);
+    animation: fadeIn var(--transition-normal) ease-out;
+    
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+.side-modal {
+    background: var(--bg-secondary);
+    width: 45%;
+    max-width: 650px;
+    height: 85vh;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideInUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.side-modal-header {
+    padding: var(--space-md);
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8f9fa;
+}
+
+.side-modal-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.side-modal-body {
+    padding: var(--space-md);
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.close-details-btn {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 40px;
+    font-weight: 300;
+    color: white;
+    cursor: pointer;
+    background: none;
+    border: none;
+    line-height: 1;
+    transition: transform var(--transition-normal);
+}
+
+.close-details-btn:hover {
+    transform: scale(1.1);
+}
+
+.plant-entry {
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+    overflow: hidden;
+}
+
+.plant-name {
+    margin: 0;
+    padding: var(--space-sm) var(--space-md);
+    background: #f1f5f9;
+    font-size: 1rem;
+}
+
+.plant-details-table {
+    border-radius: 0;
+    box-shadow: none;
+    margin-bottom: 0;
+}
+
+.plant-details-table .key-column {
+    width: 40%;
+}
+
+.biomass-section h4 {
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-sm);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: capitalize;
+}
+
+/* Mobile responsive for side-by-side modals */
+@media screen and (max-width: 1023px) {
+    .details-modal-container {
+        flex-direction: column;
+        padding: var(--space-md);
+        gap: var(--space-md);
+    }
+    .side-modal {
+        width: 100%;
+        height: 45vh;
+        max-width: none;
+    }
+    .close-details-btn {
+        top: 5px;
+        right: 15px;
+        color: var(--text-primary);
+        background: rgba(255,255,255,0.5);
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        font-size: 32px;
+    }
+}
+
+/* =================================================================== */
+/* 11. RESPONSIVE DESIGN
+/* =================================================================== */
+
+@media screen and (max-width: 1199px) {
+    .sidebar {
+        width: 320px;
+    }
+
+    .sidebar.collapsed {
+        transform: translateX(-320px);
+    }
+    
+    .main-content {
+        margin-left: 320px;
+    }
+    
+    .main-content.full-width {
+        margin-left: 0;
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 300px;
+        z-index: 10001;
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .mobile-controls {
+        display: block;
+    }
+    
+    .show-sidebar-btn {
+        display: none;
+    }
+    
+    #bottom-right-overlays {
+        bottom: 80px;
+        max-width: 250px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .sidebar {
+        width: 100%;
+        transform: translateX(-100%);
+        z-index: 10001;
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .sidebar-content {
+        padding: var(--space-md);
+    }
+    
+    .sidebar-section {
+        padding: var(--space-md);
+        margin-bottom: var(--space-lg);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .mobile-controls {
+        display: block;
+    }
+    
+    .show-sidebar-btn {
+        display: none;
+    }
+    
+    #bottom-right-overlays {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        margin: var(--space-md);
+        max-width: none;
+    }
+    
+    .map-overlay-box {
+        margin-bottom: var(--space-md);
+    }
+}

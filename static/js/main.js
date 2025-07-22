@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "Bihar",
     "Chhattisgarh",
     "Goa",
-    "Gujrat",
+    "Gujarat",
     "Haryana",
     "Himachal Pradesh",
     "Jharkhand",

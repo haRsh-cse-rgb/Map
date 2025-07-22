@@ -830,11 +830,24 @@ tr:hover {
 .legend-color.red {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+    border-radius: 50%;
 }
-
 .legend-color.green {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    border-radius: 50%;
+}
+.legend-color.green.small {
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    border-radius: 50%;
+}
+.legend-color.blue {
+    background: #0074D9;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(0, 116, 217, 0.3);
 }
 
 .legend-color:hover {
@@ -853,7 +866,28 @@ tr:hover {
 
 /* Data at a Glance Overlay */
 #data-glance-overlay {
-    min-width: 200px;
+    min-width: 140px;
+    max-width: 200px;
+    padding: 12px 16px;
+    font-size: 13px;
+}
+#data-glance-overlay h4 {
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+#data-glance-overlay .legend-item {
+    font-size: 13px;
+    margin-bottom: 4px;
+    gap: 8px;
+    padding: 0;
+}
+#data-glance-overlay .legend-color {
+    width: 13px;
+    height: 13px;
+}
+#data-glance-overlay .legend-note {
+    font-size: 11px;
+    margin-top: 4px;
 }
 
 #data-glance-overlay .stat-item {
@@ -963,15 +997,26 @@ tr:hover {
 }
 
 .side-modal-header {
-    padding: var(--space-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 32px 12px 32px;
     border-bottom: 1px solid #e2e8f0;
     background: #f8f9fa;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
 }
-
 .side-modal-header h3 {
     margin: 0;
-    font-size: 1.1rem;
-    color: var(--text-primary);
+    margin-left: 8px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+.side-modal-header .print-modal-btn {
+    margin: 0 0 0 24px;
+    padding: 8px 20px;
+    font-size: 16px;
 }
 
 .side-modal-body {
@@ -1473,6 +1518,36 @@ input:focus-visible {
         background: #f0f0f0 !important;
         color: black !important;
     }
+    .modal, .modal-content, .side-modal, .details-modal-container {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  table {
+    page-break-inside: auto !important;
+    width: 100% !important;
+  }
+  tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+  th, td {
+    word-break: break-word !important;
+    white-space: normal !important;
+  }
+  .print-modal-btn, .close-modal, .close-details-btn {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
 }
 
 /* =================================================================== */
@@ -1878,4 +1953,26 @@ body {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+.print-modal-btn {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 16px;
+    margin-left: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.print-modal-btn:hover, .print-modal-btn:focus {
+    background: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    outline: none;
 }

@@ -38,6 +38,46 @@ def load_plant_data():
         print(f"Error loading plant data: {str(e)}")
         return {}
 
+def load_steel_plant_data():
+    """Load and process the steel iron plant data from data.xlsx"""
+    try:
+        df = pd.read_excel('data.xlsx')
+        df = df.fillna('')
+        df.columns = df.columns.astype(str).str.strip()
+        plants_by_state = {}
+        for state, group in df.groupby('State'):
+            state = str(state).strip()
+            if state:
+                plants_by_state[state] = [
+                    {k.strip(): str(v).strip() if isinstance(v, str) else v 
+                     for k, v in row.items()}
+                    for _, row in group.iterrows()
+                ]
+        return plants_by_state
+    except Exception as e:
+        print(f"Error loading steel plant data: {str(e)}")
+        return {}
+
+def load_sponge_plant_data():
+    """Load and process the sponge iron plant data from Sponge_Iron_Plants.xlsx"""
+    try:
+        df = pd.read_excel('Sponge_Iron_Plants.xlsx')
+        df = df.fillna('')
+        df.columns = df.columns.astype(str).str.strip()
+        plants_by_state = {}
+        for state, group in df.groupby('State'):
+            state = str(state).strip()
+            if state:
+                plants_by_state[state] = [
+                    {k.strip(): str(v).strip() if isinstance(v, str) else v 
+                     for k, v in row.items()}
+                    for _, row in group.iterrows()
+                ]
+        return plants_by_state
+    except Exception as e:
+        print(f"Error loading sponge iron plant data: {str(e)}")
+        return {}
+
 def load_odisha_biomass_data():
     try:
         file_path = 'Odisha_biomass.xlsx'
@@ -109,8 +149,12 @@ def index():
 @app.route('/api/plants')
 def get_plants():
     try:
-        plants_by_state = load_plant_data()
-        return jsonify(plants_by_state)
+        steel_plants = load_steel_plant_data()
+        sponge_plants = load_sponge_plant_data()
+        return jsonify({
+            'steel': steel_plants,
+            'sponge': sponge_plants
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -188,30 +232,48 @@ def get_biomass():
 @app.route('/api/distance')
 def get_distance():
     try:
+        lat1 = request.args.get('lat1')
+        lon1 = request.args.get('lon1')
+        lat2 = request.args.get('lat2')
+        lon2 = request.args.get('lon2')
+        print('Received:', lat1, lon1, lat2, lon2)
+        if all([lat1, lon1, lat2, lon2]):
+            try:
+                lat1 = float(lat1)
+                lon1 = float(lon1)
+                lat2 = float(lat2)
+                lon2 = float(lon2)
+            except Exception as e:
+                return jsonify({'error': f'Invalid coordinates: {e}'}), 400
+            url = f"http://router.project-osrm.org/route/v1/driving/{lon1},{lat1};{lon2},{lat2}?overview=false"
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
+            if data['code'] == 'Ok':
+                distance_meters = data['routes'][0]['distance']
+                distance_km = distance_meters / 1000
+                return jsonify({'distance': f"{distance_km:.2f} km"})
+            else:
+                return jsonify({'error': 'Could not calculate distance using OSRM'}), 500
+        # Fallback: use city geocoding if lat/lon not provided
         origin_city = request.args.get('origin')
         destination_city = request.args.get('destination')
         if not origin_city or not destination_city:
-            return jsonify({'error': 'Origin and destination cities are required'}), 400
-
+            return jsonify({'error': 'Origin and destination cities or coordinates are required'}), 400
         lat1, lon1 = get_coords(origin_city)
         lat2, lon2 = get_coords(destination_city)
-
         if not lat1 or not lon1 or not lat2 or not lon2:
             return jsonify({'error': 'Could not geocode one or both cities'}), 400
-
-        # Call OSRM route service
         url = f"http://router.project-osrm.org/route/v1/driving/{lon1},{lat1};{lon2},{lat2}?overview=false"
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
-
         if data['code'] == 'Ok':
             distance_meters = data['routes'][0]['distance']
             distance_km = distance_meters / 1000
             return jsonify({'distance': f"{distance_km:.2f} km"})
         else:
             return jsonify({'error': 'Could not calculate distance using OSRM'}), 500
-
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

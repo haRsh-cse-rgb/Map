@@ -7,6 +7,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let allPlantNames = [];
   let selectedPlant1 = null;
   let selectedPlant2 = null;
+  let selectedPlant1LatLon = null;
+  let selectedPlant2LatLon = null;
+  // --- END NEW ---
+
+  // --- Add new variables for two plant datasets ---
+  let steelPlantData = {};
+  let spongePlantData = {};
   // --- END NEW ---
 
   // --- Sidebar and Layer Toggles ---
@@ -87,13 +94,21 @@ document.addEventListener("DOMContentLoaded", () => {
     sidebar.classList.remove('collapsed');
   });
 
-  const plantToggle = document.getElementById("plants-toggle");
+  const steelToggle = document.getElementById("steel-toggle");
+  const spongeToggle = document.getElementById("sponge-toggle");
   const biomassToggle = document.getElementById("biomass-toggle");
 
-  plantToggle.addEventListener("change", () => {
-    const plantsSeries = currentChart?.get("plants-series");
-    if (plantsSeries) {
-      plantsSeries.setVisible(plantToggle.checked);
+  steelToggle.addEventListener("change", () => {
+    const steelSeries = currentChart?.get("steel-series");
+    if (steelSeries) {
+      steelSeries.setVisible(steelToggle.checked);
+    }
+  });
+
+  spongeToggle.addEventListener("change", () => {
+    const spongeSeries = currentChart?.get("sponge-series");
+    if (spongeSeries) {
+      spongeSeries.setVisible(spongeToggle.checked);
     }
   });
 
@@ -113,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "Bihar",
     "Chhattisgarh",
     "Goa",
-    "Gujarat",
+    "Gujrat",
     "Haryana",
     "Himachal Pradesh",
     "Jharkhand",
@@ -207,9 +222,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   calculateDistanceBtn.addEventListener("click", () => {
-    if (selectedPlant1 && selectedPlant2) {
+    console.log('Selected Plant 1:', selectedPlant1LatLon, 'Selected Plant 2:', selectedPlant2LatLon);
+    if (selectedPlant1LatLon && selectedPlant2LatLon && selectedPlant1LatLon.lat && selectedPlant1LatLon.lon && selectedPlant2LatLon.lat && selectedPlant2LatLon.lon) {
+      const url = `/api/distance?lat1=${selectedPlant1LatLon.lat}&lon1=${selectedPlant1LatLon.lon}&lat2=${selectedPlant2LatLon.lat}&lon2=${selectedPlant2LatLon.lon}`;
+      console.log('Distance fetch URL:', url);
       distanceResult.textContent = "Calculating...";
-      fetch(`/api/distance?origin=${selectedPlant1}&destination=${selectedPlant2}`)
+      fetch(url)
         .then(response => response.json())
         .then(data => {
           distanceResult.textContent = data.distance ? `Distance: ${data.distance}` : (data.error || "Could not calculate distance.");
@@ -219,22 +237,30 @@ document.addEventListener("DOMContentLoaded", () => {
             distanceResult.textContent = "Error fetching distance.";
         });
     } else {
-      distanceResult.textContent = "Please select two plants from the list.";
+      distanceResult.textContent = "Please select two plants with valid coordinates from the list.";
+      console.error('Missing lat/lon for one or both plants:', selectedPlant1LatLon, selectedPlant2LatLon);
     }
   });
 
   function populatePlantDataForAutocomplete(data) {
-    allPlantNames = Object.values(data)
-      .flat()
-      .filter(plant => plant["Sponge Iron Plant"] && plant["City/ District"])
-      .map((plant) => ({ name: plant["Sponge Iron Plant"], city: plant["City/ District"] }));
+    allPlantNames = data
+      .filter(plant => plant["Sponge Iron Plant"] && plant["City/ District"] && plant["Latitude"] && plant["Longitude"])
+      .map((plant) => ({
+        name: plant["Sponge Iron Plant"],
+        city: plant["City/ District"],
+        type: plant._type,
+        lat: plant["Latitude"],
+        lon: plant["Longitude"]
+      }));
     allPlantNames.sort((a, b) => a.name.localeCompare(b.name));
 
     autocomplete(plant1Input, plant1Options, allPlantNames, (plant) => {
       selectedPlant1 = plant.city;
+      selectedPlant1LatLon = { lat: plant.lat, lon: plant.lon };
     });
     autocomplete(plant2Input, plant2Options, allPlantNames, (plant) => {
       selectedPlant2 = plant.city;
+      selectedPlant2LatLon = { lat: plant.lat, lon: plant.lon };
     });
   }
 
@@ -290,32 +316,37 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
 
     const content = `
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h3>${state} - Biomass Details</h3>
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th></th> 
-                        <th>Wheat</th>
-                        <th>Rice</th>
-                        <th>Maize</th>
-                        <th>Bajra</th>
-                        <th>Sugarcane</th>
-                        <th>Groundnut</th>
-                        <th>Rapeseed Mustard</th>
-                        <th>Arhar/Tur</th>
-                        <th>Sum</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${tableRows}
-                </tbody>
-            </table>
+  <div class="modal-content" style="position: relative;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h3 style="margin: 0;">${state} - Biomass Details</h3>
+          <button class="print-modal-btn" onclick="window.printModalContent('biomass-modal')">🖨️ Print</button>
         </div>
-         <p style="text-align: center; font-style: italic; margin-top: 10px;">* unit = 1000 tonnes per annum</p>
-    </div>
+        <span class="close-modal" style="position: absolute; top: 20px; right: 30px;">&times;</span>
+      </div>
+      <div style="overflow-x: auto; margin-top: 18px;">
+          <table>
+              <thead>
+                  <tr>
+                      <th></th> 
+                      <th>Wheat</th>
+                      <th>Rice</th>
+                      <th>Maize</th>
+                      <th>Bajra</th>
+                      <th>Sugarcane</th>
+                      <th>Groundnut</th>
+                      <th>Rapeseed Mustard</th>
+                      <th>Arhar/Tur</th>
+                      <th>Sum</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  ${tableRows}
+              </tbody>
+          </table>
+      </div>
+       <p style="text-align: center; font-style: italic; margin-top: 10px;">* unit = 1000 tonnes per annum</p>
+  </div>
 `;
 
     modal.innerHTML = content;
@@ -581,9 +612,15 @@ document.addEventListener("DOMContentLoaded", () => {
   fetch("/api/plants")
     .then((response) => response.json())
     .then((data) => {
-      plantData = data;
-      populatePlantDataForAutocomplete(data); // Integration point
-      console.log("Loaded plant data:", plantData);
+      steelPlantData = data.steel || {};
+      spongePlantData = data.sponge || {};
+      // Merge for autocomplete and distance (with type info)
+      const allPlants = [
+        ...Object.values(steelPlantData).flat().map(p => ({...p, _type: 'Steel Iron Plant'})),
+        ...Object.values(spongePlantData).flat().map(p => ({...p, _type: 'Sponge Iron Plant'})),
+      ];
+      populatePlantDataForAutocomplete(allPlants);
+      plantData = { ...steelPlantData, ...spongePlantData };
       loadIndiaMap();
       highlightStatesWithPlants(); 
       highlightOdishaDistricts();
@@ -656,21 +693,36 @@ document.addEventListener("DOMContentLoaded", () => {
     return null;
   }
 
-  function updateDataGlanceBox(totalPlants, totalBiomassStates) {
+  function updateDataGlanceBox(totalSteel, totalSponge, totalBiomassStates) {
       const container = document.getElementById('data-glance-overlay');
       if (container) {
           container.innerHTML = `
             <h4><i class="material-icons">bar_chart</i>Data at a Glance</h4>
             <div class="legend-item">
                 <div class="legend-color red"></div>
-                <span><b>${totalPlants}</b> Sponge Iron Plants</span>
+                <span><b>${totalSteel}</b> Steel Iron Plants</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color blue"></div>
+                <span><b>${totalSponge}</b> Sponge Iron Plants</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color green"></div>
                 <span><b>${totalBiomassStates}</b> States with Biomass</span>
             </div>
+            <p class='legend-note' style='font-size:12px;color:#64748b;margin-top:8px;'><strong>Note:</strong> For state-wise details, click on the state (not just the dot).</p>
           `;
       }
+  }
+
+  function syncTogglesWithMap() {
+    const steelSeries = currentChart?.get("steel-series");
+    const spongeSeries = currentChart?.get("sponge-series");
+    const biomassSeries = currentChart?.get("biomass-series");
+    if (steelSeries) steelSeries.setVisible(steelToggle.checked, false);
+    if (spongeSeries) spongeSeries.setVisible(spongeToggle.checked, false);
+    if (biomassSeries) biomassSeries.setVisible(biomassToggle.checked, false);
+    if (currentChart) currentChart.redraw();
   }
 
   function createMap(geoJson) {
@@ -685,7 +737,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     // --- END MODIFICATION ---
 
-    const plantPoints = Object.values(plantData)
+    const steelPlantPoints = Object.values(steelPlantData)
       .flat()
       .map((plant) => {
         return {
@@ -693,13 +745,26 @@ document.addEventListener("DOMContentLoaded", () => {
           lon: parseFloat(plant["Longitude"]),
           lat: parseFloat(plant["Latitude"]),
           marker: {
-            radius: 6,
+            radius: 4,
             fillColor: "#FF0000",
             lineColor: "#fff",
             lineWidth: 2,
           },
         };
       });
+    const spongePlantPoints = Object.values(spongePlantData)
+      .flat()
+      .map((plant) => ({
+        name: plant["Sponge Iron Plant"] || "Unknown Plant",
+        lon: parseFloat(plant["Longitude"]),
+        lat: parseFloat(plant["Latitude"]),
+        marker: {
+          radius: 4,
+          fillColor: "#0074D9",
+          lineColor: "#fff",
+          lineWidth: 2,
+        },
+      }));
 
     const statesWithBiomass = [
       "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Gujarat",
@@ -722,7 +787,7 @@ document.addEventListener("DOMContentLoaded", () => {
               lon: coordinates[0] + 0.2,
               lat: coordinates[1] + 0.2,
               marker: {
-                radius: 8,
+                radius: 5,
                 fillColor: "#00FF00",
                 lineColor: "#fff",
                 lineWidth: 2,
@@ -735,21 +800,22 @@ document.addEventListener("DOMContentLoaded", () => {
       .filter((point) => point !== null);
     
     // Calculate totals and update the new "Data at a Glance" box
-    const totalPlants = plantPoints.length;
+    const totalSteel = steelPlantPoints.length;
+    const totalSponge = spongePlantPoints.length;
     const totalBiomassStates = biomassPoints.length;
-    updateDataGlanceBox(totalPlants, totalBiomassStates);
+    updateDataGlanceBox(totalSteel, totalSponge, totalBiomassStates);
     
     currentChart = Highcharts.mapChart("map-container", {
       chart: {
         map: geoJson,
       },
       title: {
-        text: "India Map With Plant and Biomass Locations",
+        text: "India Map With Iron Steel, Sponge Iron Plants and Biomass",
       },
-      subtitle: {
-        text: '<i>Click on a state to explore its districts, plants, and biomass data.</i>',
-        useHTML: true,
-      },
+      // subtitle: {
+      //   text: '<i>Click on a state to explore its districts, plants, and biomass data.</i>',
+      //   useHTML: true,
+      // },
       mapNavigation: {
         enabled: true,
       },
@@ -760,10 +826,13 @@ document.addEventListener("DOMContentLoaded", () => {
           if (this.point.series.name === "States with Biomass") {
             return `<b>${state}</b><br>Click to view biomass details`;
           } else if (this.point.series.name === "States") {
-            const plants = plantData[state] || [];
-            return `<b>${state}</b><br>Number of Plants: ${plants.length}`;
-          } else if (this.point.series.name === "Plant Locations") {
-            return `<b>Plant:</b> ${this.point.name}`;
+            const steel = (steelPlantData[state] || []).length;
+            const sponge = (spongePlantData[state] || []).length;
+            return `<b>${state}</b><br>Steel Iron Plants: ${steel}<br>Sponge Iron Plants: ${sponge}`;
+          } else if (this.point.series.name === "Steel Iron Plants") {
+            return `<b>Steel Iron Plant:</b> ${this.point.name}`;
+          } else if (this.point.series.name === "Sponge Iron Plants") {
+            return `<b>Sponge Iron Plant:</b> ${this.point.name}`;
           } else {
             return `<b>${state}</b>`;
           }
@@ -814,21 +883,19 @@ document.addEventListener("DOMContentLoaded", () => {
             events: {
               click: function () {
                 const stateName = this.name;
-                const plants = plantData[stateName];
-
+                const steel = steelPlantData[stateName] || [];
+                const sponge = spongePlantData[stateName] || [];
                 if (!stateName) return;
-
-                if (!plants || plants.length === 0) {
+                if ((steel.length + sponge.length) === 0) {
                   alert("No plant data available for " + stateName);
                   return;
                 }
-
                 const stateFile = stateName.toLowerCase().replace(/\s+/g, "");
                 fetch(`/static/geojson/states/${stateFile}.json`)
                   .then(response => response.json())
                   .then(stateData => {
                     currentView = stateName;
-                    createStateMap(stateData, plants, stateName);
+                    createStateMap(stateData, steel, sponge, stateName);
                     createBackButton();
                   })
                   .catch(error => {
@@ -840,12 +907,24 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         },
         {
-          id: "plants-series",
+          id: "steel-series",
           type: "mappoint",
-          name: "Plant Locations",
+          name: "Steel Iron Plants",
           showInLegend: false,
-          data: plantPoints,
+          data: steelPlantPoints,
           color: "#FF0000",
+          visible: true,
+          dataLabels: {
+            enabled: false,
+          },
+        },
+        {
+          id: "sponge-series",
+          type: "mappoint",
+          name: "Sponge Iron Plants",
+          showInLegend: false,
+          data: spongePlantPoints,
+          color: "#0074D9",
           visible: true,
           dataLabels: {
             enabled: false,
@@ -884,20 +963,23 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       ],
     });
-
+    syncTogglesWithMap();
     return currentChart;
   }
 
   function toggleBiomassView() {
     if (currentChart) {
-      const plantsSeries = currentChart.get("plants-series");
+      const steelSeries = currentChart.get("steel-series");
+      const spongeSeries = currentChart.get("sponge-series");
       const biomassSeries = currentChart.get("biomass-series");
 
       if (biomassSeries.visible) {
-        plantsSeries.setVisible(true);
+        steelSeries.setVisible(true);
+        spongeSeries.setVisible(true);
         biomassSeries.setVisible(false);
       } else {
-        plantsSeries.setVisible(false);
+        steelSeries.setVisible(false);
+        spongeSeries.setVisible(false);
         biomassSeries.setVisible(true);
       }
     }
@@ -905,12 +987,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function highlightStatesWithPlants() {
     if (currentChart) {
-      const plantsSeries = currentChart.get("plants-series");
-      plantsSeries.setVisible(!plantsSeries.visible);
+      const steelSeries = currentChart.get("steel-series");
+      const spongeSeries = currentChart.get("sponge-series");
+      steelSeries.setVisible(!steelSeries.visible);
+      spongeSeries.setVisible(!spongeSeries.visible);
     }
   }
 
-  function createStateMap(stateData, plants, stateName) {
+  function createStateMap(stateData, steel, sponge, stateName) {
     // --- MODIFICATION: Hide the Data at a Glance box on state view ---
     const dataGlanceBox = document.getElementById('data-glance-overlay');
     if (dataGlanceBox) {
@@ -926,14 +1010,27 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentChart) {
       currentChart.destroy();
     }
-    const plantPoints = plants.map((plant) => {
+    const steelPlantPoints = steel.map((plant) => {
       return {
         name: plant["Sponge Iron Plant"] || "Unknown Plant",
         lon: parseFloat(plant["Longitude"]),
         lat: parseFloat(plant["Latitude"]),
         marker: {
-          radius: 6,
+          radius: 4,
           fillColor: "#FF0000",
+          lineColor: "#fff",
+          lineWidth: 2,
+        },
+      };
+    });
+    const spongePlantPoints = sponge.map((plant) => {
+      return {
+        name: plant["Sponge Iron Plant"] || "Unknown Plant",
+        lon: parseFloat(plant["Longitude"]),
+        lat: parseFloat(plant["Latitude"]),
+        marker: {
+          radius: 4,
+          fillColor: "#0074D9",
           lineColor: "#fff",
           lineWidth: 2,
         },
@@ -964,7 +1061,15 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const plantsByDistrict = {};
-    plants.forEach((plant) => {
+    steel.forEach((plant) => {
+      const rawDistrict = plant["City/ District"] || "Unknown";
+      const district = normalizeDistrictName(rawDistrict);
+      if (!plantsByDistrict[district]) {
+        plantsByDistrict[district] = [];
+      }
+      plantsByDistrict[district].push(plant);
+    });
+    sponge.forEach((plant) => {
       const rawDistrict = plant["City/ District"] || "Unknown";
       const district = normalizeDistrictName(rawDistrict);
       if (!plantsByDistrict[district]) {
@@ -1028,7 +1133,7 @@ document.addEventListener("DOMContentLoaded", () => {
         text: `${stateName} Districts`,
       },
       subtitle: {
-        text: `Total Plants: ${plants.length} | Districts with Plants: ${districtsWithPlants.size} 
+        text: `Total Plants: ${steel.length + sponge.length} | Districts with Plants: ${districtsWithPlants.size} 
                <br><i>Click on a District to see the availability of Biomass and Plants</i>`,
         useHTML: true,
       },
@@ -1088,25 +1193,23 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         },
         {
-          id: "plants-series",
-          name: "Sponge Iron Plants",
+          id: "steel-series",
+          name: "Steel Iron Plants",
           showInLegend: false,
           type: "mappoint",
           color: "#FF0000",
-          data: plants.map((plant) => {
-            return {
-              name: plant["Sponge Iron Plant"] || "Unknown Plant",
-              lon: parseFloat(plant["Longitude"]),
-              lat: parseFloat(plant["Latitude"]),
-              marker: {
-                radius: 6,
-                symbol: "circle",
-                fillColor: "#FF0000",
-                lineColor: "#fff",
-                lineWidth: 2,
-              },
-            };
-          }),
+          data: steelPlantPoints,
+          dataLabels: {
+            enabled: false,
+          },
+        },
+        {
+          id: "sponge-series",
+          name: "Sponge Iron Plants",
+          showInLegend: false,
+          type: "mappoint",
+          color: "#0074D9",
+          data: spongePlantPoints,
           dataLabels: {
             enabled: false,
           },
@@ -1136,7 +1239,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 lat: offsetCentroid[1],
                 district: district,
                 marker: {
-                  radius: 6,
+                  radius: 4,
                   symbol: "circle",
                   fillColor: "#00FF00",
                   lineColor: "#fff",
@@ -1159,6 +1262,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       ],
     });
+    syncTogglesWithMap();
   }
   
   // --- REWRITTEN FUNCTION for Side-by-Side Modals ---
@@ -1195,13 +1299,17 @@ document.addEventListener("DOMContentLoaded", () => {
         : "<p>No plant data available for this district.</p>";
     
     plantDetailsModal.innerHTML = `
-        <div class="side-modal-header"><h3>Plants in ${district}</h3></div>
+        <div class="side-modal-header"><h3>Plants in ${district}</h3>
+            <button class="print-modal-btn" onclick="window.printModalContent('plant-details-modal')">🖨️ Print</button>
+        </div>
         <div class="side-modal-body">${plantsTableHTML}</div>
     `;
 
     // --- 2. Populate Biomass Data Modal (with loader) ---
     biomassDetailsModal.innerHTML = `
-        <div class="side-modal-header"><h3>Biomass Data in ${district}</h3></div>
+        <div class="side-modal-header"><h3>Biomass Data in ${district}</h3>
+            <button class="print-modal-btn" onclick="window.printModalContent('biomass-details-modal')">🖨️ Print</button>
+        </div>
         <div class="side-modal-body"><p>Loading biomass data...</p></div>
     `;
 
@@ -1285,4 +1393,213 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     document.getElementById("map-container").appendChild(button);
   }
+
+  const steelDetailsBtn = document.getElementById("steel-details-btn");
+  const spongeDetailsBtn = document.getElementById("sponge-details-btn");
+
+  steelDetailsBtn.addEventListener("click", () => {
+    showPlantStatesListModal("steel");
+  });
+  spongeDetailsBtn.addEventListener("click", () => {
+    showPlantStatesListModal("sponge");
+  });
+
+  function showPlantStatesListModal(type) {
+    const modal = document.createElement("div");
+    modal.id = `${type}-states-modal`;
+    modal.className = "modal";
+    modal.style.display = "block";
+    modal.style.zIndex = "9999999";
+
+    const modalContent = document.createElement("div");
+    modalContent.className = "modal-content";
+    modalContent.style.maxWidth = "600px";
+    modalContent.style.padding = "20px";
+    modalContent.style.margin = "50px auto";
+    modalContent.style.backgroundColor = "#fff";
+    modalContent.style.borderRadius = "8px";
+    modalContent.style.boxShadow = "0 4px 8px rgba(0,0,0,0.1)";
+
+    const header = document.createElement("div");
+    header.style.display = "flex";
+    header.style.justifyContent = "space-between";
+    header.style.alignItems = "center";
+    header.style.marginBottom = "20px";
+
+    const title = document.createElement("h3");
+    title.textContent = type === "steel" ? "Steel Iron Plants by State" : "Sponge Iron Plants by State";
+    title.style.margin = "0";
+
+    const closeBtn = document.createElement("span");
+    closeBtn.innerHTML = "&times;";
+    closeBtn.style.fontSize = "24px";
+    closeBtn.style.cursor = "pointer";
+    closeBtn.style.fontWeight = "bold";
+    closeBtn.onclick = () => (modal.style.display = "none");
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+    modalContent.appendChild(header);
+
+    const stateList = document.createElement("div");
+    stateList.style.maxHeight = "500px";
+    stateList.style.overflowY = "auto";
+
+    states.forEach((state) => {
+      const stateButton = document.createElement("div");
+      stateButton.className = "state-biomass-button";
+      stateButton.style.display = "flex";
+      stateButton.style.justifyContent = "space-between";
+      stateButton.style.alignItems = "center";
+      stateButton.style.padding = "10px";
+      stateButton.style.margin = "5px 0";
+      stateButton.style.borderBottom = "1px solid #eee";
+
+      const stateName = document.createElement("span");
+      stateName.textContent = state;
+
+      const viewBtn = document.createElement("button");
+      viewBtn.textContent = "View Details";
+      viewBtn.style.padding = "5px 10px";
+      viewBtn.style.backgroundColor = type === "steel" ? "#ef4444" : "#0074D9";
+      viewBtn.style.color = "white";
+      viewBtn.style.border = "none";
+      viewBtn.style.borderRadius = "4px";
+      viewBtn.style.cursor = "pointer";
+
+      viewBtn.onclick = () => {
+        modal.style.display = "none";
+        showStatePlantDetailsModal(state, type);
+      };
+
+      stateButton.appendChild(stateName);
+      stateButton.appendChild(viewBtn);
+      stateList.appendChild(stateButton);
+    });
+
+    modalContent.appendChild(stateList);
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+
+    modal.onclick = (event) => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    };
+  }
+
+  function showStatePlantDetailsModal(state, type) {
+    const modal = document.createElement("div");
+    modal.id = `${type}-state-plant-modal`;
+    modal.className = "modal";
+    modal.style.display = "block";
+    modal.style.zIndex = "9999999";
+
+    const modalContent = document.createElement("div");
+    modalContent.className = "modal-content";
+    modalContent.style.maxWidth = "800px";
+    modalContent.style.padding = "20px";
+    modalContent.style.margin = "50px auto";
+    modalContent.style.backgroundColor = "#fff";
+    modalContent.style.borderRadius = "8px";
+    modalContent.style.boxShadow = "0 4px 8px rgba(0,0,0,0.1)";
+
+    const header = document.createElement("div");
+    header.style.display = "flex";
+    header.style.justifyContent = "space-between";
+    header.style.alignItems = "center";
+    header.style.marginBottom = "20px";
+
+    const title = document.createElement("h3");
+    title.textContent = `${state} - ${type === "steel" ? "Steel Iron Plants" : "Sponge Iron Plants"} Details`;
+    title.style.margin = "0";
+
+    const printBtn = document.createElement("button");
+    printBtn.className = "print-modal-btn";
+    printBtn.innerHTML = "🖨️ Print";
+    printBtn.onclick = () => window.printModalContent(`${type}-state-plant-modal`);
+
+    const closeBtn = document.createElement("span");
+    closeBtn.innerHTML = "&times;";
+    closeBtn.style.fontSize = "24px";
+    closeBtn.style.cursor = "pointer";
+    closeBtn.style.fontWeight = "bold";
+    closeBtn.onclick = () => (modal.style.display = "none");
+
+    header.appendChild(title);
+    header.appendChild(printBtn);
+    header.appendChild(closeBtn);
+    modalContent.appendChild(header);
+
+    // Table
+    const table = document.createElement("table");
+    table.style.width = "100%";
+    table.style.borderCollapse = "collapse";
+    table.style.marginTop = "10px";
+
+    const thead = document.createElement("thead");
+    thead.innerHTML = `
+    <tr style="background:#f1f5f9;">
+      <th>City/District</th>
+      <th>Information Source</th>
+      <th>Plant Name</th>
+      <th>Energy Source</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+    </tr>
+  `;
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    const plantList = type === "steel" ? (steelPlantData[state] || []) : (spongePlantData[state] || []);
+    if (plantList.length === 0) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 6;
+      td.textContent = "No plant data available for this state.";
+      td.style.textAlign = "center";
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    } else {
+      plantList.forEach(plant => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+        <td>${plant["City/ District"] || ""}</td>
+        <td>${plant["Information Source"] || ""}</td>
+        <td>${plant["Sponge Iron Plant"] || ""}</td>
+        <td>${plant["Energy Source"] || ""}</td>
+        <td>${plant["Latitude"] || ""}</td>
+        <td>${plant["Longitude"] || ""}</td>
+      `;
+        tbody.appendChild(tr);
+      });
+    }
+    table.appendChild(tbody);
+    modalContent.appendChild(table);
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+
+    modal.onclick = (event) => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    };
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  window.printModalContent = function(modalId) {
+    var printContents = document.getElementById(modalId).innerHTML;
+    var printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write('<html><head><title>Print</title>');
+    // Optionally add styles for print
+    var styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style')).map(node => node.outerHTML).join('');
+    printWindow.document.write(styles);
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(printContents);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  };
 });

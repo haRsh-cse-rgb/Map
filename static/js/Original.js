@@ -380,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
           lon: parseFloat(plant["Longitude"]),
           lat: parseFloat(plant["Latitude"]),
           marker: {
-            radius: 6,
+            radius: 4,
             fillColor: "#FF0000",
             lineColor: "#fff",
             lineWidth: 2,
@@ -639,7 +639,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lon: parseFloat(plant["Longitude"]),
         lat: parseFloat(plant["Latitude"]),
         marker: {
-          radius: 6,
+          radius: 4,
           fillColor: "#FF0000",
           lineColor: "#fff",
           lineWidth: 2,
@@ -818,7 +818,7 @@ document.addEventListener("DOMContentLoaded", () => {
               lon: parseFloat(plant["Longitude"]),
               lat: parseFloat(plant["Latitude"]),
               marker: {
-                radius: 6,
+                radius: 4,
                 symbol: "circle",
                 fillColor: "#FF0000",
                 lineColor: "#fff",

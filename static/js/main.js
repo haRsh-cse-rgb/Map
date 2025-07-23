@@ -810,7 +810,7 @@ document.addEventListener("DOMContentLoaded", () => {
         map: geoJson,
       },
       title: {
-        text: "India Map With Iron Steel, Sponge Iron Plants and Biomass",
+        text: "India's Map of Iron, Steel, DRI Plants along with Biomass details.",
       },
       // subtitle: {
       //   text: '<i>Click on a state to explore its districts, plants, and biomass data.</i>',

@@ -78,7 +78,452 @@ def load_sponge_plant_data():
         print(f"Error loading sponge iron plant data: {str(e)}")
         return {}
 
+def load_all_biomass_data():
+    """Load biomass data for all states"""
+    try:
+        biomass_data = {}
+        
+        # Load Odisha biomass data
+        odisha_file = 'Odisha_biomass.xlsx'
+        if os.path.exists(odisha_file):
+            df = pd.read_excel(odisha_file, header=[0, 1])
+            districts = df.iloc[:, 0]
+            odisha_data = []
+            
+            for index, row in df.iterrows():
+                district_data = {
+                    'state': 'Odisha',
+                    'district': districts[index],
+                    'bioenergy_potential': {
+                        'kharif_rice': float(row[('Bioenergy Potential GJ', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Bioenergy Potential GJ', 'Rabi Rice')]),
+                        'wheat': float(row[('Bioenergy Potential GJ', 'Wheat')]),
+                        'cotton': float(row[('Bioenergy Potential GJ', 'Cotton')]),
+                        'sugarcane': float(row[('Bioenergy Potential GJ', 'Sugarcane')])
+                    },
+                    'gross_biomass': {
+                        'kharif_rice': float(row[('Gross Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Gross Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Gross Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Gross Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Gross Biomass Kilo tonnes', 'Sugarcane')])
+                    },
+                    'surplus_biomass': {
+                        'kharif_rice': float(row[('Surplus Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Surplus Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Surplus Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Surplus Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Surplus Biomass Kilo tonnes', 'Sugarcane')])
+                    }
+                }
+                odisha_data.append(district_data)
+            biomass_data['Odisha'] = odisha_data
+        
+        # Load Himachal Pradesh biomass data
+        himachal_file = 'Himachal_Pradesh_biomass.xlsx'
+        if os.path.exists(himachal_file):
+            df = pd.read_excel(himachal_file, header=[0, 1])
+            districts = df.iloc[:, 0]
+            himachal_data = []
+            
+            for index, row in df.iterrows():
+                district_data = {
+                    'state': 'Himachal Pradesh',
+                    'district': districts[index],
+                    'bioenergy_potential': {
+                        'kharif_rice': float(row[('Bioenergy Potential GJ', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Bioenergy Potential GJ', 'Rabi Rice')]),
+                        'wheat': float(row[('Bioenergy Potential GJ', 'Wheat')]),
+                        'cotton': float(row[('Bioenergy Potential GJ', 'Cotton')]),
+                        'sugarcane': float(row[('Bioenergy Potential GJ', 'Sugarcane')])
+                    },
+                    'gross_biomass': {
+                        'kharif_rice': float(row[('Gross Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Gross Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Gross Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Gross Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Gross Biomass Kilo tonnes', 'Sugarcane')])
+                    },
+                    'surplus_biomass': {
+                        'kharif_rice': float(row[('Surplus Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Surplus Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Surplus Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Surplus Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Surplus Biomass Kilo tonnes', 'Sugarcane')])
+                    }
+                }
+                himachal_data.append(district_data)
+            biomass_data['Himachal Pradesh'] = himachal_data
+
+        # Load Goa biomass data
+        goa_file = 'Goa_biomass.xlsx'
+        if os.path.exists(goa_file):
+            df = pd.read_excel(goa_file, header=[0, 1])
+            districts = df.iloc[:, 0]
+            goa_data = []
+            
+            for index, row in df.iterrows():
+                district_data = {
+                    'state': 'Goa',
+                    'district': districts[index],
+                    'bioenergy_potential': {
+                        'kharif_rice': float(row[('Bioenergy Potential GJ', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Bioenergy Potential GJ', 'Rabi Rice')]),
+                        'wheat': float(row[('Bioenergy Potential GJ', 'Wheat')]),
+                        'cotton': float(row[('Bioenergy Potential GJ', 'Cotton')]),
+                        'sugarcane': float(row[('Bioenergy Potential GJ', 'Sugarcane')])
+                    },
+                    'gross_biomass': {
+                        'kharif_rice': float(row[('Gross Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Gross Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Gross Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Gross Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Gross Biomass Kilo tonnes', 'Sugarcane')])
+                    },
+                    'surplus_biomass': {
+                        'kharif_rice': float(row[('Surplus Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Surplus Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Surplus Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Surplus Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Surplus Biomass Kilo tonnes', 'Sugarcane')])
+                    }
+                }
+                goa_data.append(district_data)
+            biomass_data['Goa'] = goa_data
+
+        # Load Tripura biomass data
+        tripura_file = 'Tripura_biomass.xlsx'
+        if os.path.exists(tripura_file):
+            df = pd.read_excel(tripura_file, header=[0, 1])
+            districts = df.iloc[:, 0]
+            tripura_data = []
+            
+            for index, row in df.iterrows():
+                district_data = {
+                    'state': 'Tripura',
+                    'district': districts[index],
+                    'bioenergy_potential': {
+                        'kharif_rice': float(row[('Bioenergy Potential GJ', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Bioenergy Potential GJ', 'Rabi Rice')]),
+                        'wheat': float(row[('Bioenergy Potential GJ', 'Wheat')]),
+                        'cotton': float(row[('Bioenergy Potential GJ', 'Cotton')]),
+                        'sugarcane': float(row[('Bioenergy Potential GJ', 'Sugarcane')])
+                    },
+                    'gross_biomass': {
+                        'kharif_rice': float(row[('Gross Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Gross Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Gross Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Gross Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Gross Biomass Kilo tonnes', 'Sugarcane')])
+                    },
+                    'surplus_biomass': {
+                        'kharif_rice': float(row[('Surplus Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Surplus Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Surplus Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Surplus Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Surplus Biomass Kilo tonnes', 'Sugarcane')])
+                    }
+                }
+                tripura_data.append(district_data)
+            biomass_data['Tripura'] = tripura_data
+
+        # Load Sikkim biomass data
+        sikkim_file = 'Sikkim_biomass.xlsx'
+        if os.path.exists(sikkim_file):
+            df = pd.read_excel(sikkim_file, header=[0, 1])
+            districts = df.iloc[:, 0]
+            sikkim_data = []
+            
+            for index, row in df.iterrows():
+                district_data = {
+                    'state': 'Sikkim',
+                    'district': districts[index],
+                    'bioenergy_potential': {
+                        'kharif_rice': float(row[('Bioenergy Potential GJ', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Bioenergy Potential GJ', 'Rabi Rice')]),
+                        'wheat': float(row[('Bioenergy Potential GJ', 'Wheat')]),
+                        'cotton': float(row[('Bioenergy Potential GJ', 'Cotton')]),
+                        'sugarcane': float(row[('Bioenergy Potential GJ', 'Sugarcane')])
+                    },
+                    'gross_biomass': {
+                        'kharif_rice': float(row[('Gross Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Gross Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Gross Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Gross Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Gross Biomass Kilo tonnes', 'Sugarcane')])
+                    },
+                    'surplus_biomass': {
+                        'kharif_rice': float(row[('Surplus Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Surplus Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Surplus Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Surplus Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Surplus Biomass Kilo tonnes', 'Sugarcane')])
+                    }
+                }
+                sikkim_data.append(district_data)
+            biomass_data['Sikkim'] = sikkim_data
+
+        # Load Puducherry biomass data
+        puducherry_file = 'Puducherry_biomass.xlsx'
+        if os.path.exists(puducherry_file):
+            df = pd.read_excel(puducherry_file, header=[0, 1])
+            districts = df.iloc[:, 0]
+            puducherry_data = []
+            
+            for index, row in df.iterrows():
+                district_data = {
+                    'state': 'Puducherry',
+                    'district': districts[index],
+                    'bioenergy_potential': {
+                        'kharif_rice': float(row[('Bioenergy Potential GJ', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Bioenergy Potential GJ', 'Rabi Rice')]),
+                        'wheat': float(row[('Bioenergy Potential GJ', 'Wheat')]),
+                        'cotton': float(row[('Bioenergy Potential GJ', 'Cotton')]),
+                        'sugarcane': float(row[('Bioenergy Potential GJ', 'Sugarcane')])
+                    },
+                    'gross_biomass': {
+                        'kharif_rice': float(row[('Gross Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Gross Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Gross Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Gross Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Gross Biomass Kilo tonnes', 'Sugarcane')])
+                    },
+                    'surplus_biomass': {
+                        'kharif_rice': float(row[('Surplus Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Surplus Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Surplus Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Surplus Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Surplus Biomass Kilo tonnes', 'Sugarcane')])
+                    }
+                }
+                puducherry_data.append(district_data)
+            biomass_data['Puducherry'] = puducherry_data
+
+        # Load Meghalaya biomass data
+        meghalaya_file = 'Meghalaya_biomass.xlsx'
+        if os.path.exists(meghalaya_file):
+            df = pd.read_excel(meghalaya_file, header=[0, 1])
+            districts = df.iloc[:, 0]
+            meghalaya_data = []
+            
+            for index, row in df.iterrows():
+                district_data = {
+                    'state': 'Meghalaya',
+                    'district': districts[index],
+                    'bioenergy_potential': {
+                        'kharif_rice': float(row[('Bioenergy Potential GJ', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Bioenergy Potential GJ', 'Rabi Rice')]),
+                        'wheat': float(row[('Bioenergy Potential GJ', 'Wheat')]),
+                        'cotton': float(row[('Bioenergy Potential GJ', 'Cotton')]),
+                        'sugarcane': float(row[('Bioenergy Potential GJ', 'Sugarcane')])
+                    },
+                    'gross_biomass': {
+                        'kharif_rice': float(row[('Gross Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Gross Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Gross Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Gross Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Gross Biomass Kilo tonnes', 'Sugarcane')])
+                    },
+                    'surplus_biomass': {
+                        'kharif_rice': float(row[('Surplus Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Surplus Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Surplus Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Surplus Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Surplus Biomass Kilo tonnes', 'Sugarcane')])
+                    }
+                }
+                meghalaya_data.append(district_data)
+            biomass_data['Meghalaya'] = meghalaya_data
+
+        # Load Mizoram biomass data
+        mizoram_file = 'Mizoram_biomass.xlsx'
+        if os.path.exists(mizoram_file):
+            df = pd.read_excel(mizoram_file, header=[0, 1])
+            districts = df.iloc[:, 0]
+            mizoram_data = []
+            
+            for index, row in df.iterrows():
+                district_data = {
+                    'state': 'Mizoram',
+                    'district': districts[index],
+                    'bioenergy_potential': {
+                        'kharif_rice': float(row[('Bioenergy Potential GJ', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Bioenergy Potential GJ', 'Rabi Rice')]),
+                        'wheat': float(row[('Bioenergy Potential GJ', 'Wheat')]),
+                        'cotton': float(row[('Bioenergy Potential GJ', 'Cotton')]),
+                        'sugarcane': float(row[('Bioenergy Potential GJ', 'Sugarcane')])
+                    },
+                    'gross_biomass': {
+                        'kharif_rice': float(row[('Gross Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Gross Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Gross Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Gross Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Gross Biomass Kilo tonnes', 'Sugarcane')])
+                    },
+                    'surplus_biomass': {
+                        'kharif_rice': float(row[('Surplus Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Surplus Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Surplus Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Surplus Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Surplus Biomass Kilo tonnes', 'Sugarcane')])
+                    }
+                }
+                mizoram_data.append(district_data)
+            biomass_data['Mizoram'] = mizoram_data
+
+        # Load Karnataka biomass data
+        karnataka_file = 'Karnataka_biomass.xlsx'
+        if os.path.exists(karnataka_file):
+            df = pd.read_excel(karnataka_file, header=[0, 1])
+            districts = df.iloc[:, 0]
+            karnataka_data = []
+            
+            for index, row in df.iterrows():
+                district_data = {
+                    'state': 'Karnataka',
+                    'district': districts[index],
+                    'bioenergy_potential': {
+                        'kharif_rice': float(row[('Bioenergy Potential GJ', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Bioenergy Potential GJ', 'Rabi Rice')]),
+                        'wheat': float(row[('Bioenergy Potential GJ', 'Wheat')]),
+                        'cotton': float(row[('Bioenergy Potential GJ', 'Cotton')]),
+                        'sugarcane': float(row[('Bioenergy Potential GJ', 'Sugarcane')])
+                    },
+                    'gross_biomass': {
+                        'kharif_rice': float(row[('Gross Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Gross Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Gross Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Gross Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Gross Biomass Kilo tonnes', 'Sugarcane')])
+                    },
+                    'surplus_biomass': {
+                        'kharif_rice': float(row[('Surplus Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Surplus Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Surplus Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Surplus Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Surplus Biomass Kilo tonnes', 'Sugarcane')])
+                    }
+                }
+                karnataka_data.append(district_data)
+            biomass_data['Karnataka'] = karnataka_data
+
+        # Load Kerala biomass data
+        kerala_file = 'Kerela_biomass.xlsx'
+        if os.path.exists(kerala_file):
+            df = pd.read_excel(kerala_file, header=[0, 1])
+            districts = df.iloc[:, 0]
+            kerala_data = []
+            
+            for index, row in df.iterrows():
+                district_data = {
+                    'state': 'Kerala',
+                    'district': districts[index],
+                    'bioenergy_potential': {
+                        'kharif_rice': float(row[('Bioenergy Potential GJ', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Bioenergy Potential GJ', 'Rabi Rice')]),
+                        'wheat': float(row[('Bioenergy Potential GJ', 'Wheat')]),
+                        'cotton': float(row[('Bioenergy Potential GJ', 'Cotton')]),
+                        'sugarcane': float(row[('Bioenergy Potential GJ', 'Sugarcane')])
+                    },
+                    'gross_biomass': {
+                        'kharif_rice': float(row[('Gross Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Gross Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Gross Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Gross Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Gross Biomass Kilo tonnes', 'Sugarcane')])
+                    },
+                    'surplus_biomass': {
+                        'kharif_rice': float(row[('Surplus Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Surplus Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Surplus Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Surplus Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Surplus Biomass Kilo tonnes', 'Sugarcane')])
+                    }
+                }
+                kerala_data.append(district_data)
+            biomass_data['Kerala'] = kerala_data
+
+        # Load Maharashtra biomass data
+        maharashtra_file = 'Maharastra_biomass.xlsx'
+        if os.path.exists(maharashtra_file):
+            df = pd.read_excel(maharashtra_file, header=[0, 1])
+            districts = df.iloc[:, 0]
+            maharashtra_data = []
+            
+            for index, row in df.iterrows():
+                district_data = {
+                    'state': 'Maharashtra',
+                    'district': districts[index],
+                    'bioenergy_potential': {
+                        'kharif_rice': float(row[('Bioenergy Potential GJ', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Bioenergy Potential GJ', 'Rabi Rice')]),
+                        'wheat': float(row[('Bioenergy Potential GJ', 'Wheat')]),
+                        'cotton': float(row[('Bioenergy Potential GJ', 'Cotton')]),
+                        'sugarcane': float(row[('Bioenergy Potential GJ', 'Sugarcane')])
+                    },
+                    'gross_biomass': {
+                        'kharif_rice': float(row[('Gross Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Gross Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Gross Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Gross Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Gross Biomass Kilo tonnes', 'Sugarcane')])
+                    },
+                    'surplus_biomass': {
+                        'kharif_rice': float(row[('Surplus Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Surplus Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Surplus Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Surplus Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Surplus Biomass Kilo tonnes', 'Sugarcane')])
+                    }
+                }
+                maharashtra_data.append(district_data)
+            biomass_data['Maharashtra'] = maharashtra_data
+
+        # Load Andhra Pradesh biomass data
+        andhra_file = 'Andra_Pradesh_biomass.xlsx'
+        if os.path.exists(andhra_file):
+            df = pd.read_excel(andhra_file, header=[0, 1])
+            districts = df.iloc[:, 0]
+            andhra_data = []
+            
+            for index, row in df.iterrows():
+                district_data = {
+                    'state': 'Andhra Pradesh',
+                    'district': districts[index],
+                    'bioenergy_potential': {
+                        'kharif_rice': float(row[('Bioenergy Potential GJ', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Bioenergy Potential GJ', 'Rabi Rice')]),
+                        'wheat': float(row[('Bioenergy Potential GJ', 'Wheat')]),
+                        'cotton': float(row[('Bioenergy Potential GJ', 'Cotton')]),
+                        'sugarcane': float(row[('Bioenergy Potential GJ', 'Sugarcane')])
+                    },
+                    'gross_biomass': {
+                        'kharif_rice': float(row[('Gross Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Gross Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Gross Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Gross Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Gross Biomass Kilo tonnes', 'Sugarcane')])
+                    },
+                    'surplus_biomass': {
+                        'kharif_rice': float(row[('Surplus Biomass Kilo tonnes', 'Kharif Rice')]),
+                        'rabi_rice': float(row[('Surplus Biomass Kilo tonnes', 'Rabi Rice')]),
+                        'wheat': float(row[('Surplus Biomass Kilo tonnes', 'Wheat')]),
+                        'cotton': float(row[('Surplus Biomass Kilo tonnes', 'Cotton')]),
+                        'sugarcane': float(row[('Surplus Biomass Kilo tonnes', 'Sugarcane')])
+                    }
+                }
+                andhra_data.append(district_data)
+            biomass_data['Andhra Pradesh'] = andhra_data
+        
+        return biomass_data
+
+    except Exception as e:
+        print(f"Error loading biomass data: {str(e)}")
+        return {}
+
+# Keep the old function for backward compatibility
 def load_odisha_biomass_data():
+    """Load and process the biomass data from the provided Excel file."""
     try:
         file_path = 'Odisha_biomass.xlsx'
         # Read Excel file with multi-level headers
@@ -158,14 +603,56 @@ def get_plants():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/biomass/odisha')
-def get_odisha_biomass():
+@app.route('/api/biomass/all')
+def get_all_biomass():
     try:
-        biomass_data = load_odisha_biomass_data()
+        biomass_data = load_all_biomass_data()
         if biomass_data:
             return jsonify(biomass_data), 200
         else:
-            return jsonify({'error': 'No data found for Odisha'}), 404
+            return jsonify({'error': 'No biomass data found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/biomass/state/<state>')
+def get_state_biomass(state):
+    try:
+        biomass_data = load_all_biomass_data()
+        state_data = biomass_data.get(state, [])
+        if state_data:
+            return jsonify(state_data), 200
+        else:
+            return jsonify({'error': f'No biomass data found for {state}'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/districts/<state>/<district>')
+def get_district_details(state, district):
+    try:
+        plants_data = load_plant_data()
+        biomass_data = load_all_biomass_data()
+        
+        district = district.strip().lower()
+        state = state.strip()
+        
+        # Get plant details for the state
+        plants_in_district = []
+        if state in plants_data:
+            plants_in_district = [plant for plant in plants_data[state] if plant.get("City/ District", "").lower() == district]
+        
+        # Get biomass details for the state
+        biomass_in_district = None
+        if state in biomass_data:
+            biomass_in_district = next((b for b in biomass_data[state] if b["district"].lower() == district), None)
+        
+        # Combine data
+        response = {
+            "district": district.title(),
+            "state": state,
+            "plants": plants_in_district,
+            "biomass": biomass_in_district
+        }
+        return jsonify(response), 200 if plants_in_district or biomass_in_district else 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

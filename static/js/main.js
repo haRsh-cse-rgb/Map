@@ -24,6 +24,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const showSidebarBtn = document.getElementById("show-sidebar-btn");
   const biomassDetailsBtn = document.getElementById("biomass-details-btn");
   const districtBiomassBtn = document.getElementById("district-biomass-btn"); // Get the button
+  const mobileCloseBtn = document.getElementById("mobile-close-btn");
+  
+  // Debug: Check if mobile close button is found
+  console.log('Mobile close button found:', mobileCloseBtn);
+  console.log('Mobile menu toggle found:', mobileMenuToggle);
 
   // --- NEW: Side-by-Side Modal Elements ---
   const detailsModalContainer = document.getElementById("details-modal-container");
@@ -48,10 +53,22 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // --- NEW: Event listener for the district biomass button ---
+  let allBiomassData = {};
+
+  // Load biomass data for all states
+  fetch("/api/biomass/all")
+    .then((response) => response.json())
+    .then((data) => {
+      allBiomassData = data;
+      console.log("Loaded biomass data for all states:", allBiomassData);
+    })
+    .catch((error) => console.error("Error loading biomass data:", error));
+
+  // Update district biomass button to work for any state with biomass data
   districtBiomassBtn.addEventListener("click", () => {
-    // Only works if the button is not disabled (i.e., when viewing Odisha)
     if (!districtBiomassBtn.disabled) {
-        showOdishaDistrictBiomassList();
+      const currentState = currentView || "Odisha"; // Default to Odisha if no current view
+      showStateDistrictBiomassList(currentState);
     }
   });
   // --- END NEW ---
@@ -90,9 +107,124 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Also handle mobile menu toggle
   mobileMenuToggle.addEventListener("click", () => {
+    console.log('Mobile menu toggle clicked');
     sidebar.classList.toggle('open');
-    sidebar.classList.remove('collapsed');
+    console.log('Sidebar open state:', sidebar.classList.contains('open'));
+    // Show/hide backdrop
+    let backdrop = document.getElementById('mobile-backdrop');
+    if (sidebar.classList.contains('open')) {
+      if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.id = 'mobile-backdrop';
+        document.body.appendChild(backdrop);
+        backdrop.addEventListener('click', () => {
+          sidebar.classList.remove('open');
+          backdrop.classList.add('hide');
+          setTimeout(() => backdrop.remove(), 300);
+        });
+      }
+      backdrop.classList.remove('hide');
+    } else if (backdrop) {
+      backdrop.classList.add('hide');
+      setTimeout(() => backdrop.remove(), 300);
+    }
   });
+
+  // Handle mobile close button
+  mobileCloseBtn.addEventListener("click", () => {
+    console.log('Mobile close button clicked');
+    sidebar.classList.remove('open');
+    const backdrop = document.getElementById('mobile-backdrop');
+    if (backdrop) {
+      backdrop.classList.add('hide');
+      setTimeout(() => backdrop.remove(), 300);
+    }
+  });
+
+  // Close sidebar when clicking outside on mobile
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 1023) {
+      const isClickInsideSidebar = sidebar.contains(e.target);
+      const isClickOnMobileToggle = mobileMenuToggle.contains(e.target);
+      
+      if (!isClickInsideSidebar && !isClickOnMobileToggle && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+        const backdrop = document.getElementById('mobile-backdrop');
+        if (backdrop) {
+          backdrop.style.opacity = '0';
+          setTimeout(() => {
+            if (backdrop.parentNode) {
+              backdrop.parentNode.removeChild(backdrop);
+            }
+          }, 300);
+        }
+      }
+    }
+  });
+
+  // Handle window resize to reset mobile state
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 1023) {
+      // Reset mobile-specific classes on larger screens
+      sidebar.classList.remove('open');
+      const backdrop = document.getElementById('mobile-backdrop');
+      if (backdrop && backdrop.parentNode) {
+        backdrop.parentNode.removeChild(backdrop);
+      }
+    }
+  });
+
+  // Auto-close mobile sidebar when map is interacted with
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 1023 && sidebar.classList.contains('open')) {
+      // Check if click is on the map container or its children
+      const mapContainer = document.getElementById('map-container');
+      if (mapContainer && (mapContainer === e.target || mapContainer.contains(e.target))) {
+        sidebar.classList.remove('open');
+        const backdrop = document.getElementById('mobile-backdrop');
+        if (backdrop) {
+          backdrop.style.opacity = '0';
+          setTimeout(() => {
+            if (backdrop.parentNode) {
+              backdrop.parentNode.removeChild(backdrop);
+            }
+          }, 300);
+        }
+      }
+    }
+  });
+
+  // Add touch event handling for mobile
+  if ('ontouchstart' in window) {
+    document.addEventListener('touchstart', (e) => {
+      if (window.innerWidth <= 1023 && sidebar.classList.contains('open')) {
+        const mapContainer = document.getElementById('map-container');
+        if (mapContainer && (mapContainer === e.target || mapContainer.contains(e.target))) {
+          sidebar.classList.remove('open');
+          const backdrop = document.getElementById('mobile-backdrop');
+          if (backdrop) {
+            backdrop.style.opacity = '0';
+            setTimeout(() => {
+              if (backdrop.parentNode) {
+                backdrop.parentNode.removeChild(backdrop);
+              }
+            }, 300);
+          }
+        }
+      }
+    });
+  }
+
+  // Show mobile hint for first-time mobile users
+  if (window.innerWidth <= 1023) {
+    const mobileHint = document.querySelector('.mobile-hint');
+    if (mobileHint) {
+      mobileHint.classList.add('show-hint');
+      setTimeout(() => {
+        mobileHint.classList.remove('show-hint');
+      }, 5000); // Show for 5 seconds
+    }
+  }
 
   const steelToggle = document.getElementById("steel-toggle");
   const spongeToggle = document.getElementById("sponge-toggle");
@@ -558,6 +690,100 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   // --- END NEW ---
 
+  function showStateDistrictBiomassList(state) {
+    // Get biomass data for the specific state from the already loaded allBiomassData
+    const stateBiomassData = allBiomassData[state] || [];
+    
+    if (stateBiomassData.length === 0) {
+        alert(`No biomass data available for ${state}`);
+        return;
+    }
+
+    const modal = document.createElement("div");
+    modal.id = "district-biomass-list-modal";
+    modal.className = "modal";
+    modal.style.display = "block";
+    modal.style.zIndex = "1000000";
+
+    const modalContent = document.createElement("div");
+    modalContent.className = "modal-content";
+    modalContent.style.maxWidth = "600px";
+    modalContent.style.padding = "20px";
+    modalContent.style.margin = "50px auto";
+    modalContent.style.backgroundColor = "#fff";
+    modalContent.style.borderRadius = "8px";
+    modalContent.style.boxShadow = "0 4px 8px rgba(0,0,0,0.1)";
+
+    const header = document.createElement("div");
+    header.style.display = "flex";
+    header.style.justifyContent = "space-between";
+    header.style.alignItems = "center";
+    header.style.marginBottom = "20px";
+
+    const title = document.createElement("h3");
+    title.textContent = `Biomass Details by District (${state})`;
+    title.style.margin = "0";
+
+    const closeBtn = document.createElement("span");
+    closeBtn.innerHTML = "&times;";
+    closeBtn.style.fontSize = "24px";
+    closeBtn.style.cursor = "pointer";
+    closeBtn.style.fontWeight = "bold";
+    closeBtn.onclick = () => modal.remove();
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+    modalContent.appendChild(header);
+
+    const districtList = document.createElement("div");
+    districtList.style.maxHeight = "500px";
+    districtList.style.overflowY = "auto";
+
+    stateBiomassData.forEach(item => {
+        const district = item.district;
+        const districtButton = document.createElement("div");
+        districtButton.className = "state-biomass-button";
+        districtButton.style.display = "flex";
+        districtButton.style.justifyContent = "space-between";
+        districtButton.style.alignItems = "center";
+        districtButton.style.padding = "10px";
+        districtButton.style.margin = "5px 0";
+        districtButton.style.borderBottom = "1px solid #eee";
+
+        const districtName = document.createElement("span");
+        districtName.textContent = district;
+
+        const viewBtn = document.createElement("button");
+        viewBtn.textContent = "View Details";
+        viewBtn.style.padding = "5px 10px";
+        viewBtn.style.backgroundColor = "#4CAF50";
+        viewBtn.style.color = "white";
+        viewBtn.style.border = "none";
+        viewBtn.style.borderRadius = "4px";
+        viewBtn.style.cursor = "pointer";
+
+        viewBtn.onclick = () => {
+            modal.remove(); 
+            const plantsInDistrict = (plantData[state] || []).filter(p => (p["City/ District"] || "").toLowerCase() === district.toLowerCase());
+            showDistrictDetails(district, plantsInDistrict);
+        };
+
+        districtButton.appendChild(districtName);
+        districtButton.appendChild(viewBtn);
+        districtList.appendChild(districtButton);
+    });
+
+    modalContent.appendChild(districtList);
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+
+    modal.onclick = (event) => {
+        if (event.target === modal) {
+            modal.remove();
+        }
+    };
+  }
+
   function toggleBiomassContainer(show) {
     const stateListContainer = document.getElementById("state-list-container");
     if (stateListContainer) {
@@ -742,6 +968,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .map((plant) => {
         return {
           name: plant["Sponge Iron Plant"] || "Unknown Plant",
+          address: plant["Address"] || "Address not available",
           lon: parseFloat(plant["Longitude"]),
           lat: parseFloat(plant["Latitude"]),
           marker: {
@@ -756,6 +983,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .flat()
       .map((plant) => ({
         name: plant["Sponge Iron Plant"] || "Unknown Plant",
+        address: plant["Address"] || "Address not available",
         lon: parseFloat(plant["Longitude"]),
         lat: parseFloat(plant["Latitude"]),
         marker: {
@@ -830,9 +1058,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const sponge = (spongePlantData[state] || []).length;
             return `<b>${state}</b><br>Steel Iron Plants: ${steel}<br>Sponge Iron Plants: ${sponge}`;
           } else if (this.point.series.name === "Steel Iron Plants") {
-            return `<b>Steel Iron Plant:</b> ${this.point.name}`;
+            return `<b>Steel Iron Plant:</b> ${this.point.name}<br><b>Address:</b> ${this.point.address}`;
           } else if (this.point.series.name === "Sponge Iron Plants") {
-            return `<b>Sponge Iron Plant:</b> ${this.point.name}`;
+            return `<b>Sponge Iron Plant:</b> ${this.point.name}<br><b>Address:</b> ${this.point.address}`;
           } else {
             return `<b>${state}</b>`;
           }
@@ -1013,6 +1241,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const steelPlantPoints = steel.map((plant) => {
       return {
         name: plant["Sponge Iron Plant"] || "Unknown Plant",
+        address: plant["Address"] || "Address not available",
         lon: parseFloat(plant["Longitude"]),
         lat: parseFloat(plant["Latitude"]),
         marker: {
@@ -1026,6 +1255,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const spongePlantPoints = sponge.map((plant) => {
       return {
         name: plant["Sponge Iron Plant"] || "Unknown Plant",
+        address: plant["Address"] || "Address not available",
         lon: parseFloat(plant["Longitude"]),
         lat: parseFloat(plant["Latitude"]),
         marker: {
@@ -1150,8 +1380,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return `<b>${district}</b><br>Click here to view Biomass Availability`;
           }
 
+          if (seriesName === "Steel Iron Plants") {
+            return `<b>Steel Iron Plant:</b> ${this.point.name}<br><b>Address:</b> ${this.point.address}`;
+          }
           if (seriesName === "Sponge Iron Plants") {
-            return `<b>Plant:</b> ${this.point.name}`;
+            return `<b>Sponge Iron Plant:</b> ${this.point.name}<br><b>Address:</b> ${this.point.address}`;
           }
 
           return `<b>${district}</b>`;
@@ -1278,25 +1511,26 @@ document.addEventListener("DOMContentLoaded", () => {
         )
       : [];
 
+    const plantKeys = [
+      'Address', 'City/ District', 'Energy Source', 'Information Source', 'Latitude', 'Longitude', 'State'
+    ];
     const plantsTableHTML = sortedPlants.length > 0
-        ? sortedPlants.map((plant) => {
-            const details = Object.entries(plant)
-              .filter(([key, value]) => value && value !== "N/A" && value !== "")
-              .map(([key, value]) => `
+      ? `
+        <table class="plant-details-table">
+          <tbody>
+            ${sortedPlants.map(plant =>
+              plantKeys.filter(key => plant[key]).map(key => `
                 <tr>
-                    <td class="key-column"><strong>${key}</strong></td>
-                    <td class="value-column">${value}</td>
-                </tr>`
-              ).join("");
-            return `
-            <div class="plant-entry">
-                <h4 class="plant-name">${plant["Sponge Iron Plant"] || "Plant"}</h4>
-                <table class="plant-details-table">
-                    ${details}
-                </table>
-            </div>`;
-          }).join("")
-        : "<p>No plant data available for this district.</p>";
+                  <td class="key-column">${key}</td>
+                  <td class="value-column">${plant[key]}</td>
+                </tr>
+              `).join("") +
+              '<tr><td colspan="2"><hr style="border:1px solid #e2e8f0; margin:8px 0;"></td></tr>'
+            ).join("")}
+          </tbody>
+        </table>
+      `
+      : "<p>No plant data available for this district.</p>";
     
     plantDetailsModal.innerHTML = `
         <div class="side-modal-header"><h3>Plants in ${district}</h3>
@@ -1359,7 +1593,50 @@ document.addEventListener("DOMContentLoaded", () => {
                 biomassDetailsModal.querySelector('.side-modal-body').innerHTML = `<p>${error.message}</p>`;
             });
     } else {
-        biomassDetailsModal.querySelector('.side-modal-body').innerHTML = '<p>Detailed biomass data is not available for this state.</p>';
+        // Handle biomass data for other states
+        fetch(`/api/districts/${currentView}/${district.toLowerCase()}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Biomass data not found for this district.');
+                }
+                return response.json();
+            })
+            .then(biomassData => {
+                const biomassContent = (biomassData && biomassData.biomass)
+                    ? `
+                    <div class="biomass-section">
+                        <h4>Bioenergy Potential (GJ)</h4>
+                        <table class="biomass-table">
+                            ${Object.entries(biomassData.biomass.bioenergy_potential).map(([key, value]) => `
+                                <tr><td>${key.replace("_", " ").toUpperCase()}:</td><td>${value?.toFixed(2) || "0.00"}</td></tr>`
+                            ).join("")}
+                        </table>
+                    </div>
+                    <div class="biomass-section">
+                        <h4>Gross Biomass (Kilo tonnes)</h4>
+                        <table class="biomass-table">
+                            ${Object.entries(biomassData.biomass.gross_biomass).map(([key, value]) => `
+                                <tr><td>${key.replace("_", " ").toUpperCase()}:</td><td>${value?.toFixed(2) || "0.00"}</td></tr>`
+                            ).join("")}
+                        </table>
+                    </div>
+                    <div class="biomass-section">
+                        <h4>Surplus Biomass (Kilo tonnes)</h4>
+                        <table class="biomass-table">
+                            ${Object.entries(biomassData.biomass.surplus_biomass).map(([key, value]) => `
+                                <tr><td>${key.replace("_", " ").toUpperCase()}:</td><td>${value?.toFixed(2) || "0.00"}</td></tr>`
+                            ).join("")}
+                        </table>
+                    </div>
+                    `
+                    : "<p>No biomass data available.</p>";
+                
+                biomassDetailsModal.querySelector('.side-modal-body').innerHTML = biomassContent;
+            })
+            .catch(error => {
+                console.error("Error fetching biomass data:", error);
+                biomassDetailsModal.querySelector('.side-modal-body').innerHTML = `<p>${error.message}</p>`;
+            });
     }
 
     // --- 4. Show the main container ---
@@ -1585,9 +1862,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
   }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
+});document.addEventListener('DOMContentLoaded', function() {
   window.printModalContent = function(modalId) {
     var printContents = document.getElementById(modalId).innerHTML;
     var printWindow = window.open('', '', 'height=600,width=800');
@@ -1603,3 +1878,33 @@ document.addEventListener('DOMContentLoaded', function() {
     printWindow.print();
   };
 });
+
+// Legend toggle for mobile
+const legendToggleBtn = document.getElementById('legend-toggle-btn');
+const legendOverlayContainer = document.querySelector('.legend-overlay-container');
+
+function updateLegendToggleVisibility() {
+  if (window.innerWidth <= 1023) {
+    legendToggleBtn.style.display = 'flex';
+    legendOverlayContainer.classList.remove('show-legend');
+  } else {
+    legendToggleBtn.style.display = 'none';
+    legendOverlayContainer.classList.add('show-legend');
+  }
+}
+
+legendToggleBtn.addEventListener('click', () => {
+  legendOverlayContainer.classList.toggle('show-legend');
+});
+
+window.addEventListener('resize', updateLegendToggleVisibility);
+document.addEventListener('DOMContentLoaded', updateLegendToggleVisibility);
+
+// When switching between India and state maps, ensure heading is visible and not covered
+function updateMapHeading(text) {
+  const heading = document.querySelector('.map-heading');
+  if (heading) heading.textContent = text;
+}
+// Example usage: updateMapHeading("India's Map of Iron, Steel, DRI Plants along with Biomass");
+// Call updateMapHeading with the appropriate title when switching views.
+

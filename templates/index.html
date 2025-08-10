@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>DRI Plants in India</title>
 
     <link rel="stylesheet" href="/static/css/style.css">
@@ -20,6 +20,9 @@
             <h3>DRI Plants Map</h3>
             <button id="sidebar-toggle" class="sidebar-toggle">
                 <i class="material-icons">menu</i>
+            </button>
+            <button id="mobile-close-btn" class="mobile-close-btn" aria-label="Close menu" title="Close menu">
+                <i class="material-icons">close</i>
             </button>
         </div>
 
@@ -121,17 +124,28 @@
             <span>Options</span>
         </button>
 
+        <!-- <div class="map-heading-container">
+            <h2 class="map-heading">India's Map of Iron, Steel, DRI Plants along with Biomass</h2>
+        </div> -->
+
         <div id="map-container"></div>
 
-        <div id="bottom-right-overlays">
-            <div id="data-glance-overlay" class="map-overlay-box">
-                </div>
+        <!-- Legend Toggle Button for Mobile -->
+        <!-- <button id="legend-toggle-btn" class="legend-toggle-btn" aria-label="Show legend" style="display: none;">
+            <i class="material-icons">info_outline</i>
+        </button> -->
+
+        <div id="bottom-right-overlays" class="legend-overlay-container">
+            <div id="data-glance-overlay" class="map-overlay-box"></div>
         </div>
 
         <div class="mobile-controls">
             <button id="mobile-menu-toggle" class="mobile-button">
                 <i class="material-icons">menu</i>
             </button>
+            <div class="mobile-hint">
+                <span>Tap to open menu</span>
+            </div>
         </div>
     </div>
 

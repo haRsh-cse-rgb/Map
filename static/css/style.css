@@ -156,6 +156,7 @@ textarea:focus {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: var(--space-sm);
     padding: var(--space-lg);
     background: rgba(255, 255, 255, 0.2);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -192,6 +193,37 @@ textarea:focus {
 }
 
 .sidebar-toggle i {
+    font-size: 20px;
+    z-index: 1;
+}
+
+.mobile-close-btn {
+    display: none;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid var(--text-primary);
+    color: var(--text-primary);
+    padding: var(--space-sm);
+    border-radius: 50%;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+}
+
+.mobile-close-btn:hover {
+    background: var(--text-primary);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: var(--shadow-sm);
+}
+
+.mobile-close-btn i {
     font-size: 20px;
     z-index: 1;
 }
@@ -323,7 +355,7 @@ textarea:focus {
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
     padding: 12px 18px;
-    font-size: 16px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     box-shadow: var(--shadow-lg);
@@ -568,6 +600,31 @@ textarea:focus {
     position: relative;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     border-radius: 0;
+}
+
+/* Mobile-specific map container improvements */
+@media screen and (max-width: 1023px) {
+    #map-container {
+        height: 100vh;
+        width: 100vw;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        width: 100vw;
+        overflow-x: hidden;
+    }
+    
+    /* Ensure map is always visible on mobile */
+    .highcharts-container {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    .highcharts-root {
+        width: 100% !important;
+        height: 100% !important;
+    }
 }
 
 /* =================================================================== */
@@ -949,15 +1006,79 @@ tr:hover {
     transition: all var(--transition-normal);
     position: relative;
     overflow: hidden;
+    /* Ensure button is always visible on mobile */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.8);
 }
 
 .mobile-button:hover {
     transform: scale(1.1);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 1);
 }
 
 .mobile-button:active {
     transform: scale(0.95);
+}
+
+/* Add a subtle pulse animation to make the mobile button more noticeable */
+@keyframes mobileButtonPulse {
+    0% {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
+    }
+    100% {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+}
+
+.mobile-hint {
+    position: absolute;
+    left: 70px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.mobile-hint::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-right: 4px solid rgba(0, 0, 0, 0.8);
+}
+
+@media screen and (max-width: 1023px) {
+    .mobile-button {
+        animation: mobileButtonPulse 3s ease-in-out infinite;
+    }
+    
+    .mobile-controls:hover .mobile-hint {
+        opacity: 1;
+    }
+    
+    /* Show hint for first 5 seconds on mobile */
+    .mobile-hint.show-hint {
+        opacity: 1;
+    }
 }
 
 /* =================================================================== */
@@ -1312,13 +1433,43 @@ input:focus-visible {
 /* Tablet screens (768px to 1023px) */
 @media screen and (max-width: 1023px) {
     .sidebar {
-        transform: translateX(-100%);
-        width: 300px;
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        width: 80vw;
+        max-width: 350px;
         z-index: 10001;
+        background: var(--primary-gradient);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: var(--shadow-xl);
     }
-    
     .sidebar.open {
         transform: translateX(0);
+    }
+    .main-content {
+        margin-left: 0 !important;
+        width: 100vw;
+        overflow-x: hidden;
+        position: relative;
+        z-index: 1;
+    }
+    #mobile-backdrop {
+        display: block;
+        position: fixed;
+        z-index: 10000;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0,0,0,0.5);
+        opacity: 1;
+        transition: opacity 0.3s;
+    }
+    #mobile-backdrop.hide {
+        opacity: 0;
+        pointer-events: none;
+    }
+    .sidebar.collapsed {
+        transform: translateX(-100%);
     }
     
     .main-content {
@@ -1356,11 +1507,14 @@ input:focus-visible {
         width: 100%;
         transform: translateX(-100%);
         z-index: 10001;
+        transition: transform var(--transition-slow);
     }
     
     .sidebar.open {
         transform: translateX(0);
     }
+    
+    
     
     .sidebar-content {
         padding: var(--space-md);
@@ -1371,12 +1525,48 @@ input:focus-visible {
         margin-bottom: var(--space-lg);
     }
     
+    .sidebar-header {
+        padding: var(--space-md);
+    }
+    
+    .sidebar-header h3 {
+        font-size: 1.25rem;
+    }
+    
+    .mobile-close-btn {
+        display: flex !important;
+        animation: fadeInScale 0.3s ease-out;
+    }
+    
+    .mobile-close-btn:active {
+        transform: scale(0.95);
+    }
+    
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
     .main-content {
         margin-left: 0;
     }
     
     .mobile-controls {
         display: block;
+        bottom: var(--space-md);
+        left: var(--space-md);
+    }
+    
+    .mobile-button {
+        width: 52px;
+        height: 52px;
+        font-size: 22px;
     }
     
     .show-sidebar-btn {
@@ -1384,15 +1574,17 @@ input:focus-visible {
     }
     
     #bottom-right-overlays {
-        position: relative;
-        bottom: auto;
-        right: auto;
-        margin: var(--space-md);
+        position: fixed;
+        bottom: 80px;
+        right: var(--space-md);
+        left: var(--space-md);
         max-width: none;
+        z-index: 998;
     }
     
     .map-overlay-box {
         margin-bottom: var(--space-md);
+        padding: var(--space-sm) var(--space-md);
     }
     
     .modal-content {
@@ -1437,12 +1629,45 @@ input:focus-visible {
     .legend-item {
         font-size: 13px;
     }
+    
+    /* Improve mobile sidebar usability */
+    .sidebar-button {
+        padding: 16px 18px;
+        font-size: 15px;
+        margin-bottom: var(--space-md);
+    }
+    
+    .sidebar-button i {
+        font-size: 20px;
+    }
+    
+    /* Better mobile modal handling */
+    .details-modal-container {
+        padding: var(--space-sm);
+    }
+    
+    .side-modal {
+        width: 100%;
+        height: 45vh;
+        max-width: none;
+    }
+    
+    .close-details-btn {
+        top: 5px;
+        right: 15px;
+        color: var(--text-primary);
+        background: rgba(255,255,255,0.9);
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        font-size: 24px;
+    }
 }
 
 /* Extra small screens (320px and below) */
 @media screen and (max-width: 320px) {
     .sidebar-header {
-        padding: var(--space-md);
+        padding: var(--space-sm);
     }
     
     .sidebar-header h3 {
@@ -1463,6 +1688,11 @@ input:focus-visible {
         font-size: 20px;
     }
     
+    .mobile-controls {
+        bottom: var(--space-sm);
+        left: var(--space-sm);
+    }
+    
     .modal-content {
         padding: var(--space-sm);
     }
@@ -1474,6 +1704,12 @@ input:focus-visible {
     .state-list-container {
         width: 95%;
         padding: var(--space-sm);
+    }
+    
+    #bottom-right-overlays {
+        bottom: 70px;
+        right: var(--space-sm);
+        left: var(--space-sm);
     }
 }
 
@@ -1975,4 +2211,138 @@ body {
     background: #1d4ed8;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
     outline: none;
+}
+
+/* Legend toggle button for mobile */
+.legend-toggle-btn {
+  display: none;
+  position: fixed;
+  bottom: 120px;
+  right: 20px;
+  z-index: 11000;
+  background: #fff;
+  color: #2563eb;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  font-size: 28px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.legend-toggle-btn:active,
+.legend-toggle-btn:focus {
+  background: #f0f8ff;
+  outline: none;
+}
+
+@media screen and (max-width: 1023px) {
+  .legend-toggle-btn {
+    display: flex;
+  }
+  .legend-overlay-container {
+    display: none;
+  }
+  .legend-overlay-container.show-legend {
+    display: block;
+    position: fixed;
+    bottom: 80px;
+    right: 10px;
+    left: 10px;
+    z-index: 10999;
+  }
+  /* Heading padding for mobile */
+  .map-heading-container {
+    padding-top: 24px;
+    padding-right: 60px;
+    padding-left: 16px;
+    padding-bottom: 8px;
+    background: transparent;
+    position: relative;
+    z-index: 2;
+  }
+  .map-heading {
+    font-size: 1.1rem;
+    margin: 0;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .legend-toggle-btn {
+    display: none !important;
+  }
+  .legend-overlay-container {
+    display: block !important;
+    position: absolute;
+    bottom: 80px;
+    right: 20px;
+    z-index: 998;
+  }
+  .map-heading-container {
+    padding: 24px 0 8px 24px;
+    background: transparent;
+  }
+  .map-heading {
+    font-size: 1.5rem;
+    margin: 0;
+    line-height: 1.3;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  /* Sidebar options: limit to 3 lines with ellipsis */
+  .sidebar-button span {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    font-size: 13px;
+    line-height: 1.2;
+    max-height: 3.6em;
+  }
+  /* Hide print button on mobile */
+  .print-modal-btn {
+    display: none !important;
+  }
+  /* Legend: right-bottom, no background, small text */
+  .legend-overlay-container {
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: fixed !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    left: auto !important;
+    width: auto !important;
+    padding: 0 !important;
+    z-index: 11000 !important;
+  }
+  .map-overlay-box, .legend-item, .legend-note {
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    font-size: 12px !important;
+    padding: 2px 6px !important;
+    margin: 0 !important;
+  }
+  .legend-item {
+    font-size: 12px !important;
+  }
+  .legend-note {
+  }
+  .back-button{
+    margin-top: 80px;
+    font-size: 11px;
+
+  }
+  #show-sidebar-btn {
+    display: none !important;
+  }
 }

@@ -14,6 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Add new variables for two plant datasets ---
   let steelPlantData = {};
   let spongePlantData = {};
+  
+  // --- Add variables for current state view data ---
+  let currentStateSteelData = [];
+  let currentStateSpongeData = [];
+  let currentStateDistrictsWithPlants = new Set();
   // --- END NEW ---
 
   // --- Sidebar and Layer Toggles ---
@@ -230,10 +235,73 @@ document.addEventListener("DOMContentLoaded", () => {
   const spongeToggle = document.getElementById("sponge-toggle");
   const biomassToggle = document.getElementById("biomass-toggle");
 
+  // Function to update subtitle based on toggle states
+  function updateSubtitle() {
+    if (!currentChart) return;
+    
+    const steelVisible = steelToggle.checked;
+    const spongeVisible = spongeToggle.checked;
+    
+    // Update the counts based on visibility
+    if (currentView === "india") {
+      // For India view, we need to get the current state's data
+      const currentState = currentView || "Odisha";
+      const steel = (steelPlantData[currentState] || []).length;
+      const sponge = (spongePlantData[currentState] || []).length;
+      
+      // Total Plants should always be the sum of both, regardless of toggle states
+      const totalPlants = steel + sponge;
+      
+      let subtitleText = `Total Plants: ${totalPlants}`;
+      
+      // Only show individual counts if their respective toggles are on
+      if (steelVisible) {
+        subtitleText += ` | Steel Plants: ${steel}`;
+      }
+             if (spongeVisible) {
+         subtitleText += ` | Plants: ${sponge}`;
+       }
+      
+      currentChart.setSubtitle({
+        text: subtitleText,
+        useHTML: true
+      });
+    } else {
+      // For state view, use the stored current state data
+      const steel = currentStateSteelData || [];
+      const sponge = currentStateSpongeData || [];
+      
+      // Total Plants should always be the sum of both, regardless of toggle states
+      const totalPlants = steel.length + sponge.length;
+      
+      let subtitleText = `Total Plants: ${totalPlants}`;
+      
+      // Only show individual counts if their respective toggles are on
+      if (steelVisible) {
+        subtitleText += ` | Steel Plants: ${steel.length}`;
+      }
+             if (spongeVisible) {
+         subtitleText += ` | Plants: ${sponge.length}`;
+       }
+      
+      // Add the districts info
+      subtitleText += ` | Districts with Plants: ${currentStateDistrictsWithPlants.size}`;
+      
+      // Add the instruction text
+      subtitleText += `<br><i>Click on a District to see the availability of Biomass and Plants</i>`;
+      
+      currentChart.setSubtitle({
+        text: subtitleText,
+        useHTML: true
+      });
+    }
+  }
+
   steelToggle.addEventListener("change", () => {
     const steelSeries = currentChart?.get("steel-series");
     if (steelSeries) {
       steelSeries.setVisible(steelToggle.checked);
+      updateSubtitle();
     }
   });
 
@@ -241,6 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const spongeSeries = currentChart?.get("sponge-series");
     if (spongeSeries) {
       spongeSeries.setVisible(spongeToggle.checked);
+      updateSubtitle();
     }
   });
 
@@ -891,10 +960,19 @@ document.addEventListener("DOMContentLoaded", () => {
     districtBiomassBtn.disabled = true;
     // --- END MODIFICATION ---
 
+    // Reset current state data when going back to India view
+    currentStateSteelData = [];
+    currentStateSpongeData = [];
+    currentStateDistrictsWithPlants = new Set();
+
     fetch("/static/geojson/india.json")
       .then((response) => response.json())
       .then((data) => {
         createMap(data);
+        // Update subtitle after map is created
+        setTimeout(() => {
+          updateSubtitle();
+        }, 100);
       })
       .catch((error) => console.error("Error loading India map:", error));
   }
@@ -928,10 +1006,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="legend-color red"></div>
                 <span><b>${totalSteel}</b> Steel Iron Plants</span>
             </div>
-            <div class="legend-item">
-                <div class="legend-color blue"></div>
-                <span><b>${totalSponge}</b> Sponge Iron Plants</span>
-            </div>
+                         <div class="legend-item">
+                 <div class="legend-color blue"></div>
+                 <span><b>${totalSponge}</b> Plants</span>
+             </div>
             <div class="legend-item">
                 <div class="legend-color green"></div>
                 <span><b>${totalBiomassStates}</b> States with Biomass</span>
@@ -1056,11 +1134,11 @@ document.addEventListener("DOMContentLoaded", () => {
           } else if (this.point.series.name === "States") {
             const steel = (steelPlantData[state] || []).length;
             const sponge = (spongePlantData[state] || []).length;
-            return `<b>${state}</b><br>Steel Iron Plants: ${steel}<br>Sponge Iron Plants: ${sponge}`;
+                         return `<b>${state}</b><br>Steel Iron Plants: ${steel}<br>Plants: ${sponge}`;
           } else if (this.point.series.name === "Steel Iron Plants") {
             return `<b>Steel Iron Plant:</b> ${this.point.name}<br><b>Address:</b> ${this.point.address}`;
-          } else if (this.point.series.name === "Sponge Iron Plants") {
-            return `<b>Sponge Iron Plant:</b> ${this.point.name}<br><b>Address:</b> ${this.point.address}`;
+                   } else if (this.point.series.name === "Plants") {
+           return `<b>Plant:</b> ${this.point.name}<br><b>Address:</b> ${this.point.address}`;
           } else {
             return `<b>${state}</b>`;
           }
@@ -1149,7 +1227,7 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           id: "sponge-series",
           type: "mappoint",
-          name: "Sponge Iron Plants",
+          name: "Plants",
           showInLegend: false,
           data: spongePlantPoints,
           color: "#0074D9",
@@ -1223,6 +1301,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function createStateMap(stateData, steel, sponge, stateName) {
+    // Store current state data globally for subtitle updates
+    currentStateSteelData = steel;
+    currentStateSpongeData = sponge;
+    
     // --- MODIFICATION: Hide the Data at a Glance box on state view ---
     const dataGlanceBox = document.getElementById('data-glance-overlay');
     if (dataGlanceBox) {
@@ -1335,6 +1417,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const districtsWithPlants = new Set(Object.keys(plantsByDistrict));
+    currentStateDistrictsWithPlants = districtsWithPlants;
 
     const getOffsetCentroid = (centroid, isPlant, district) => {
       if (stateName === "Odisha") {
@@ -1362,9 +1445,9 @@ document.addEventListener("DOMContentLoaded", () => {
       title: {
         text: `${stateName} Districts`,
       },
-      subtitle: {
-        text: `Total Plants: ${steel.length + sponge.length} | Districts with Plants: ${districtsWithPlants.size} 
-               <br><i>Click on a District to see the availability of Biomass and Plants</i>`,
+             subtitle: {
+         text: ` Steel Plants: ${steel.length} | Plants: ${sponge.length} | Districts with Plants: ${districtsWithPlants.size} 
+                <br><i>Click on a District to see the availability of Biomass and Plants</i>`,
         useHTML: true,
       },
       mapNavigation: {
@@ -1383,8 +1466,8 @@ document.addEventListener("DOMContentLoaded", () => {
           if (seriesName === "Steel Iron Plants") {
             return `<b>Steel Iron Plant:</b> ${this.point.name}<br><b>Address:</b> ${this.point.address}`;
           }
-          if (seriesName === "Sponge Iron Plants") {
-            return `<b>Sponge Iron Plant:</b> ${this.point.name}<br><b>Address:</b> ${this.point.address}`;
+                     if (seriesName === "Plants") {
+             return `<b>Plant:</b> ${this.point.name}<br><b>Address:</b> ${this.point.address}`;
           }
 
           return `<b>${district}</b>`;
@@ -1436,9 +1519,9 @@ document.addEventListener("DOMContentLoaded", () => {
             enabled: false,
           },
         },
-        {
-          id: "sponge-series",
-          name: "Sponge Iron Plants",
+                 {
+           id: "sponge-series",
+           name: "Plants",
           showInLegend: false,
           type: "mappoint",
           color: "#0074D9",
@@ -1496,6 +1579,11 @@ document.addEventListener("DOMContentLoaded", () => {
       ],
     });
     syncTogglesWithMap();
+    
+    // Update subtitle after chart is created
+    setTimeout(() => {
+      updateSubtitle();
+    }, 100);
   }
   
   // --- REWRITTEN FUNCTION for Side-by-Side Modals ---
@@ -1505,32 +1593,48 @@ document.addEventListener("DOMContentLoaded", () => {
     biomassDetailsModal.innerHTML = '';
 
     // --- 1. Populate Plant Data Modal ---
-    const sortedPlants = plants?.length
-      ? [...plants].sort((a, b) =>
-          (a["Sponge Iron Plant"] || "").localeCompare(b["Sponge Iron Plant"] || "")
-        )
-      : [];
+         const sortedPlants = plants?.length
+       ? [...plants].sort((a, b) =>
+           (a["Sponge Iron Plant"] || "").localeCompare(b["Sponge Iron Plant"] || "")
+         )
+       : [];
 
-    const plantKeys = [
-      'Address', 'City/ District', 'Energy Source', 'Information Source', 'Latitude', 'Longitude', 'State'
-    ];
-    const plantsTableHTML = sortedPlants.length > 0
-      ? `
-        <table class="plant-details-table">
-          <tbody>
-            ${sortedPlants.map(plant =>
-              plantKeys.filter(key => plant[key]).map(key => `
-                <tr>
-                  <td class="key-column">${key}</td>
-                  <td class="value-column">${plant[key]}</td>
-                </tr>
-              `).join("") +
-              '<tr><td colspan="2"><hr style="border:1px solid #e2e8f0; margin:8px 0;"></td></tr>'
-            ).join("")}
-          </tbody>
-        </table>
-      `
-      : "<p>No plant data available for this district.</p>";
+         const plantKeys = [
+       'Plant Name', 'Address', 'City/ District', 'Energy Source', 'Information Source', 'Latitude', 'Longitude', 'State'
+     ];
+         const plantsTableHTML = sortedPlants.length > 0
+       ? `
+         <table class="plant-details-table">
+           <tbody>
+             ${sortedPlants.map(plant => {
+               const rows = [];
+               // Handle Plant Name specially - map the field name to display name
+               if (plant["Sponge Iron Plant"]) {
+                 rows.push(`
+                   <tr>
+                     <td class="key-column">Plant Name</td>
+                     <td class="value-column">${plant["Sponge Iron Plant"]}</td>
+                   </tr>
+                 `);
+               }
+               // Handle other fields
+               const otherKeys = ['Address', 'City/ District', 'Energy Source', 'Information Source', 'Latitude', 'Longitude', 'State'];
+               otherKeys.forEach(key => {
+                 if (plant[key]) {
+                   rows.push(`
+                     <tr>
+                       <td class="key-column">${key}</td>
+                       <td class="value-column">${plant[key]}</td>
+                     </tr>
+                   `);
+                 }
+               });
+               return rows.join("") + '<tr><td colspan="2"><hr style="border:1px solid #e2e8f0; margin:8px 0;"></td></tr>';
+             }).join("")}
+           </tbody>
+         </table>
+       `
+       : "<p>No plant data available for this district.</p>";
     
     plantDetailsModal.innerHTML = `
         <div class="side-modal-header"><h3>Plants in ${district}</h3>
@@ -1704,7 +1808,7 @@ document.addEventListener("DOMContentLoaded", () => {
     header.style.marginBottom = "20px";
 
     const title = document.createElement("h3");
-    title.textContent = type === "steel" ? "Steel Iron Plants by State" : "Sponge Iron Plants by State";
+         title.textContent = type === "steel" ? "Steel Iron Plants by State" : "Plants by State";
     title.style.margin = "0";
 
     const closeBtn = document.createElement("span");
@@ -1788,7 +1892,7 @@ document.addEventListener("DOMContentLoaded", () => {
     header.style.marginBottom = "20px";
 
     const title = document.createElement("h3");
-    title.textContent = `${state} - ${type === "steel" ? "Steel Iron Plants" : "Sponge Iron Plants"} Details`;
+         title.textContent = `${state} - ${type === "steel" ? "Steel Iron Plants" : "Plants"} Details`;
     title.style.margin = "0";
 
     const printBtn = document.createElement("button");

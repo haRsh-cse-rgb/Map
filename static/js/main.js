@@ -246,8 +246,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentView === "india") {
       // For India view, we need to get the current state's data
       const currentState = currentView || "Odisha";
-      const steel = (steelPlantData[currentState] || []).length;
-      const sponge = (spongePlantData[currentState] || []).length;
+      // const steel = (steelPlantData[currentState] || []).length;
+      // const sponge = (spongePlantData[currentState] || []).length;
+      const steel = steelPlantPoints.length;
+      const sponge = spongePlantPoints.length;
       
       // Total Plants should always be the sum of both, regardless of toggle states
       const totalPlants = steel + sponge;
@@ -259,7 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
         subtitleText += ` | Steel Plants: ${steel}`;
       }
              if (spongeVisible) {
-         subtitleText += ` | Plants: ${sponge}`;
+         subtitleText += ` | Sponge Iron Plants: ${sponge}`;
        }
       
       currentChart.setSubtitle({
@@ -281,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
         subtitleText += ` | Steel Plants: ${steel.length}`;
       }
              if (spongeVisible) {
-         subtitleText += ` | Plants: ${sponge.length}`;
+         subtitleText += ` | Sponge Iron Plants: ${sponge.length}`;
        }
       
       // Add the districts info
